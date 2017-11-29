@@ -5,14 +5,14 @@ namespace WhatToEat.Migrations
     using System.Data.Entity.Migrations;
     using System.Linq;
 
-    internal sealed class Configuration : DbMigrationsConfiguration<WhatToEat.Models.DbContext>
+    internal sealed class Configuration : DbMigrationsConfiguration<WhatToEat.Models.AppDb>
     {
         public Configuration()
         {
             AutomaticMigrationsEnabled = false;
         }
 
-        protected override void Seed(WhatToEat.Models.DbContext context)
+        protected override void Seed(WhatToEat.Models.AppDb context)
         {
             //  This method will be called after migrating to the latest version.
 

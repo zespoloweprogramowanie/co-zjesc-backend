@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace WhatToEat.Models
     {
         public Product()
         {
-
+            Recipes = new HashSet<Recipe>();
         }
 
         [Key]
@@ -21,5 +22,8 @@ namespace WhatToEat.Models
 
         [MaxLength(500)]
         public String Image { get; set; }
+
+        [JsonIgnore]
+        public virtual ICollection<Recipe> Recipes { get; set; }
     }
 }

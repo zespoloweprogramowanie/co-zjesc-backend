@@ -42,7 +42,7 @@ namespace WhatToEat
 
         public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options, IOwinContext context) 
         {
-            var manager = new ApplicationUserManager(new UserStore<ApplicationUser>(context.Get<Models.DbContext>()));
+            var manager = new ApplicationUserManager(new UserStore<ApplicationUser>(context.Get<Models.AppDb>()));
             // Configure validation logic for usernames
             manager.UserValidator = new UserValidator<ApplicationUser>(manager)
             {

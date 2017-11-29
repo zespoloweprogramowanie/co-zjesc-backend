@@ -9,15 +9,17 @@ namespace WhatToEat.Models
 {
     public class RecipeTag
     {
+        public RecipeTag()
+        {
+            Recipes = new HashSet<Recipe>();
+        }
+
         [Key]
         public int Id { get; set; }
 
         [MaxLength(500)]
         public string Name { get; set; }
 
-        [ForeignKey("Recipe")]
-        public int RecipeId { get; set; }
-
-        public Recipe Recipe { get; set; }
+        public virtual ICollection<Recipe> Recipes { get; set; }
     }
 }

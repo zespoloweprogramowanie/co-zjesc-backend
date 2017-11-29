@@ -20,9 +20,9 @@ namespace WhatToEat.Models
         }
     }
 
-    public class DbContext : IdentityDbContext<ApplicationUser>
+    public class AppDb : IdentityDbContext<ApplicationUser>
     {
-        public DbContext()
+        public AppDb()
             : base("DefaultConnection", throwIfV1Schema: false)
         {
         }
@@ -30,9 +30,9 @@ namespace WhatToEat.Models
         public virtual DbSet<Recipe> Recipes { get; set; }
         public virtual DbSet<Product> Products { get; set; }
 
-        public static DbContext Create()
+        public static AppDb Create()
         {
-            return new DbContext();
+            return new AppDb();
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
