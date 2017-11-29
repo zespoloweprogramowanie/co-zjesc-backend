@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
+using System.Web.Http.Results;
 using WhatToEat.Models;
 
 namespace WhatToEat.Controllers
@@ -17,9 +18,17 @@ namespace WhatToEat.Controllers
         private AppDb db = new AppDb();
 
         // GET: api/Products
-        public IQueryable<Product> GetProducts()
+        public IQueryable<ProductDTO> GetProducts()
         {
-            return db.Products;
+            var products = from p in db.Products
+                           select new ProductDTO()
+                           {
+                               id = p.Id,
+                               name = p.Name,
+                               image = p.Image
+                           };
+            return products;
+                           
         }
 
         // GET: api/Products/5

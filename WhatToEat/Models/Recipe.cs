@@ -8,7 +8,6 @@ namespace WhatToEat.Models
 {
     public class Recipe
     {
-        //komentarz 
         public Recipe()
         {
             Products = new HashSet<Product>();
@@ -36,5 +35,28 @@ namespace WhatToEat.Models
         public virtual ICollection<RecipeImage> Images { get; set; }
 
         public virtual ICollection<RecipeTag> Tags { get; set; }
+    }
+
+    public class RecipeDTO
+    {
+        public int id { get; set; }
+
+        public List<int> products { get; set; }
+
+        public List<string> images { get; set; }
+
+        public string title { get; set; }
+
+        public string description { get; set; }
+
+        public int? difficulty { get; set; }
+
+        public int? timeToPrepare { get; set; }
+
+        public List<string> tags { get; set; }
+
+        public int? estimatedCost { get; set; }
+
+        public int? portionCount { get; set; }
     }
 }

@@ -26,7 +26,23 @@ namespace WhatToEat.Controllers
         [ResponseType(typeof(Recipe))]
         public IHttpActionResult GetRecipe(int id)
         {
-            Recipe recipe = db.Recipes.Find(id);
+            //Recipe recipe = db.Recipes.Find(id);
+            var recipe = db.Recipes.Select(x =>
+                new RecipeDTO()
+                {
+                    id = x.Id,
+                    products = x.Products.Select(y => y.Id).ToList(),
+                    images = x.Images.Select(y => y.Path).ToList(),
+                    title = x.Name,
+                    description = x.Description,
+                    difficulty = x.Difficulty,
+                    timeToPrepare = x.TimeToPrepare,
+                    tags = x.Tags.Select(y => y.Name).ToList(),
+                    estimatedCost = x.EstimatedCost,
+                    portionCount = x.PortionCount
+
+                }).SingleOrDefault(x => x.id == id);
+
             if (recipe == null)
             {
                 return NotFound();

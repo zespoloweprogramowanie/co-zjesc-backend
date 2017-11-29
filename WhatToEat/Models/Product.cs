@@ -26,4 +26,13 @@ namespace WhatToEat.Models
         [JsonIgnore]
         public virtual ICollection<Recipe> Recipes { get; set; }
     }
+
+    public class ProductDTO
+    {
+        public int id { get; set; }
+
+        public string name { get; set; }
+
+        public string image { get; set; }
+    }
 }
