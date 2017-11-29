@@ -8,6 +8,7 @@ namespace WhatToEat.Models
 {
     public class Recipe
     {
+        //komentarz 
         public Recipe()
         {
             Products = new HashSet<Product>();
