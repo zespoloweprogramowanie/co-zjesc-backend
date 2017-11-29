@@ -26,6 +26,10 @@ namespace WhatToEat.Models
 
         public int? TimeToPrepare { get; set; }
 
+        public int? EstimatedCost { get; set; }
+
+        public int? PortionCount { get; set; }
+
         public virtual ICollection<Product> Products { get; set; }
 
         public virtual ICollection<RecipeImage> Images { get; set; }
