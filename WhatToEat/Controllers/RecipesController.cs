@@ -51,6 +51,21 @@ namespace WhatToEat.Controllers
             return Ok(recipe);
         }
 
+        // POST: api/GetRecipesByProducts
+        [Route("api/recipes/getRecipesByProducts")]
+        [ResponseType(typeof(Recipe))]
+        [HttpPost]
+        public IHttpActionResult GetRecipesByProducts(List<int> productIds)
+        {
+            var recipes = db.Recipes.Where(x => x.Products.Any(y => productIds.Any(z => z == y.Id)));
+            return Ok(recipes.Select(x => new
+            {
+                id = x.Id,
+                title = x.Name,
+                image = ((x.Images.Count > 0) ? x.Images.FirstOrDefault().Path : "")
+            }));
+        }
+
         // PUT: api/Recipes/5
         [ResponseType(typeof(void))]
         public IHttpActionResult PutRecipe(int id, Recipe recipe)
