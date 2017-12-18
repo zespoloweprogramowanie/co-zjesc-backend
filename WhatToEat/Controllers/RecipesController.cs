@@ -16,10 +16,43 @@ namespace WhatToEat.Controllers
     {
         private AppDb db = new AppDb();
 
+
+        /* - Dawid
+            ExceptionMessage: "Self referencing loop detected for property 'Recipe' with type 'System.Data.Entity.DynamicProxies.Recipe_56F77C94E6E095D7461EDA0DD92F855A80F721CEBB0FFF163B390BED5EC5700F'. Path '[0].Images[0]'."
         // GET: api/Recipes
         public IEnumerable<Recipe> GetRecipes()
         {
             return db.Recipes.ToList();
+        }
+        */
+
+        // GET: api/Recipes
+        [ResponseType(typeof(Recipe))]
+        public IHttpActionResult GetRecipes()
+        {
+            var recipes = db.Recipes.Select(x =>
+                new
+                {
+                    id = x.Id,
+                    products = x.Products.Select(y => y.Id).ToList(),
+                    images = x.Images.Select(y => y.Path).ToList(),
+                    title = x.Name,
+                    description = x.Description,
+                    difficulty = x.Difficulty,
+                    timeToPrepare = x.TimeToPrepare,
+                    tags = x.Tags.Select(y => y.Name).ToList(),
+                    estimatedCost = x.EstimatedCost,
+                    portionCount = x.PortionCount,
+                    comment = x.Comment
+
+                }).ToList();
+
+            if (recipes == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(recipes);
         }
 
         // GET: api/Recipes/5
@@ -39,7 +72,8 @@ namespace WhatToEat.Controllers
                     timeToPrepare = x.TimeToPrepare,
                     tags = x.Tags.Select(y => y.Name).ToList(),
                     estimatedCost = x.EstimatedCost,
-                    portionCount = x.PortionCount
+                    portionCount = x.PortionCount,
+                    comment = x.Comment
 
                 }).SingleOrDefault(x => x.id == id);
 

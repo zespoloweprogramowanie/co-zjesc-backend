@@ -35,6 +35,8 @@ namespace WhatToEat.Models
         public virtual ICollection<RecipeImage> Images { get; set; }
 
         public virtual ICollection<RecipeTag> Tags { get; set; }
+
+        public String Comment { get; set; } // dodane ale bez migracji
     }
 
     public class RecipeDTO
@@ -58,5 +60,7 @@ namespace WhatToEat.Models
         public int? estimatedCost { get; set; }
 
         public int? portionCount { get; set; }
+
+        public string comment { get; set; } // dodane
     }
 }
