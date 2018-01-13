@@ -42,8 +42,7 @@ namespace WhatToEat.Controllers
                     timeToPrepare = x.TimeToPrepare,
                     tags = x.Tags.Select(y => y.Name).ToList(),
                     estimatedCost = x.EstimatedCost,
-                    portionCount = x.PortionCount,
-                    comment = x.Comment
+                    portionCount = x.PortionCount
 
                 }).ToList();
 
@@ -61,20 +60,28 @@ namespace WhatToEat.Controllers
         {
             //Recipe recipe = db.Recipes.Find(id);
             var recipe = db.Recipes.Select(x =>
-                new RecipeDTO()
+                new GetRecipeDTO()
                 {
                     id = x.Id,
-                    products = x.Products.Select(y => y.Id).ToList(),
+                    products = x.Products.Select(y => new GetRecipeDTOProduct
+                    {
+                        id = y.ProductId,
+                        name = y.Product.Name,
+                        unit = new GetRecipeDTOUnit()
+                        {
+                            id = y.Unit.Id,
+                            label = y.Unit.Name
+                        },
+                        amount = y.NumberOfUnit
+                    }).ToList(),
                     images = x.Images.Select(y => y.Path).ToList(),
                     title = x.Name,
                     description = x.Description,
                     difficulty = x.Difficulty,
                     timeToPrepare = x.TimeToPrepare,
-                    tags = x.Tags.Select(y => y.Name).ToList(),
+                    tags = x.Tags.Select(y => new GetRecipeDTOTag { id= y.Id, name = y.Name }).ToList(),
                     estimatedCost = x.EstimatedCost,
-                    portionCount = x.PortionCount,
-                    comment = x.Comment
-
+                    portionCount = x.PortionCount
                 }).SingleOrDefault(x => x.id == id);
 
             if (recipe == null)
@@ -85,13 +92,20 @@ namespace WhatToEat.Controllers
             return Ok(recipe);
         }
 
+        public void Options()
+        {
+
+        }
+
         // POST: api/GetRecipesByProducts
+        [HttpPost]
         [Route("api/recipes/getRecipesByProducts")]
         [ResponseType(typeof(Recipe))]
-        [HttpPost]
+        //[HttpOptions]
         public IHttpActionResult GetRecipesByProducts(List<int> productIds)
         {
-            var recipes = db.Recipes.Where(x => x.Products.Any(y => productIds.Any(z => z == y.Id)));
+            var recipes = db.Recipes.Include(x => x.Products).Where(x => x.Products.Any(y => productIds.Any(z => z == y.ProductId))).ToList();
+            //var recipes = db.Recipes.ToList();
             return Ok(recipes.Select(x => new
             {
                 id = x.Id,

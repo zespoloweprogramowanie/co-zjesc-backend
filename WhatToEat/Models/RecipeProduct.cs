@@ -18,11 +18,20 @@ namespace WhatToEat.Models
         public int Id { get; set; }
 
         [ForeignKey("Product")]
-        public int Id_product { get; set; }
+        public int ProductId { get; set; }
+
+        public Product Product { get; set; }
 
         [ForeignKey("Recipe")]
-        public int Id_recipe { get; set; }
+        public int RecipeId { get; set; }
 
-        public double Number_of_unit { get; set; }
+        public Recipe Recipe { get; set; }
+
+        [ForeignKey("Unit")]
+        public int UnitId { get; set; }
+
+        public Unit Unit { get; set; }
+
+        public double NumberOfUnit { get; set; }
     }
 }

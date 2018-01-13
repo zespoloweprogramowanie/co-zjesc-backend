@@ -212,6 +212,10 @@
     <Compile Include="Migrations\201711291902158_init.Designer.cs">
       <DependentUpon>201711291902158_init.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201801101750576_0.cs" />
+    <Compile Include="Migrations\201801101750576_0.Designer.cs">
+      <DependentUpon>201801101750576_0.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -221,7 +225,6 @@
     <Compile Include="Models\RecipeImage.cs" />
     <Compile Include="Models\RecipeProduct.cs" />
     <Compile Include="Models\RecipeTag.cs" />
-    <Compile Include="Models\Tag.cs" />
     <Compile Include="Models\Unit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -294,6 +297,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201711291902158_init.resx">
       <DependentUpon>201711291902158_init.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801101750576_0.resx">
+      <DependentUpon>201801101750576_0.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

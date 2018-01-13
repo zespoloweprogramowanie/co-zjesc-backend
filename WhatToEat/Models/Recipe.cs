@@ -10,8 +10,9 @@ namespace WhatToEat.Models
     {
         public Recipe()
         {
-            Products = new HashSet<Product>();
+            Products = new HashSet<RecipeProduct>();
             Images = new HashSet<RecipeImage>();
+            Tags = new HashSet<RecipeTag>();
         }
 
         [Key]
@@ -30,20 +31,18 @@ namespace WhatToEat.Models
 
         public int? PortionCount { get; set; }
 
-        public virtual ICollection<Product> Products { get; set; }
+        public virtual ICollection<RecipeProduct> Products { get; set; }
 
         public virtual ICollection<RecipeImage> Images { get; set; }
 
         public virtual ICollection<RecipeTag> Tags { get; set; }
-
-        public String Comment { get; set; } // dodane ale bez migracji
     }
 
-    public class RecipeDTO
+    public class GetRecipeDTO
     {
         public int id { get; set; }
 
-        public List<int> products { get; set; }
+        public List<GetRecipeDTOProduct> products { get; set; }
 
         public List<string> images { get; set; }
 
@@ -55,12 +54,35 @@ namespace WhatToEat.Models
 
         public int? timeToPrepare { get; set; }
 
-        public List<string> tags { get; set; }
+        public List<GetRecipeDTOTag> tags { get; set; }
 
-        public int? estimatedCost { get; set; }
+        public double? estimatedCost { get; set; }
 
         public int? portionCount { get; set; }
+    }
 
-        public string comment { get; set; } // dodane
+    public class GetRecipeDTOProduct
+    {
+        public int id { get; set; }
+
+        public string name { get; set; }
+
+        public GetRecipeDTOUnit unit { get; set; }
+
+        public double amount { get; set; }
+    }
+
+    public class GetRecipeDTOUnit
+    {
+        public int id { get; set; }
+
+        public string label { get; set; }
+    }
+
+    public class GetRecipeDTOTag
+    {
+        public int id { get; set; }
+
+        public string name { get; set; }
     }
 }

@@ -30,6 +30,9 @@ namespace WhatToEat.Models
         public virtual DbSet<Recipe> Recipes { get; set; }
         public virtual DbSet<Product> Products { get; set; }
 
+        public virtual DbSet<RecipeProduct> RecipeProducts { get; set; }
+        public virtual DbSet<RecipeTag> RecipeTags { get; set; }
+
         public static AppDb Create()
         {
             return new AppDb();

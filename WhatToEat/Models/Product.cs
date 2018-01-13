@@ -11,7 +11,7 @@ namespace WhatToEat.Models
     {
         public Product()
         {
-            Recipes = new HashSet<Recipe>();
+            //Recipes = new HashSet<Recipe>();
         }
 
         [Key]
@@ -23,8 +23,8 @@ namespace WhatToEat.Models
         [MaxLength(500)]
         public String Image { get; set; }
 
-        [JsonIgnore]
-        public virtual ICollection<Recipe> Recipes { get; set; }
+        //[JsonIgnore]
+        //public virtual ICollection<Recipe> Recipes { get; set; }
     }
 
     public class ProductDTO

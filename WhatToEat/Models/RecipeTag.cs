@@ -21,17 +21,5 @@ namespace WhatToEat.Models
         public string Name { get; set; }
 
         public virtual ICollection<Recipe> Recipes { get; set; }
-
-        /*
-        [Key]
-        public int Id { get; set; }
-
-        [ForeignKey("Recipe")]
-        public int Id_recipe { get; set; }
-
-        [ForeignKey("Tag")]
-        public int Id_tag { get; set; }
-
-         */
     }
 }
