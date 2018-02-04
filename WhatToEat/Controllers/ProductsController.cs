@@ -15,11 +15,13 @@ namespace WhatToEat.Controllers
 {
     public class ProductsController : ApiController
     {
+        
         private AppDb db = new AppDb();
 
         // GET: api/Products
         public IQueryable<ProductDTO> GetProducts()
         {
+
             var products = from p in db.Products
                            select new ProductDTO()
                            {

@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.AspNet.Identity.EntityFramework;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
@@ -13,6 +15,8 @@ namespace WhatToEat.Models
             Products = new HashSet<RecipeProduct>();
             Images = new HashSet<RecipeImage>();
             Tags = new HashSet<RecipeTag>();
+            Comments = new HashSet<RecipeComment>();
+            FavouriteRecipes = new HashSet<UserFavouriteRecipe>();
         }
 
         [Key]
@@ -31,11 +35,25 @@ namespace WhatToEat.Models
 
         public int? PortionCount { get; set; }
 
+        public int? CategoryId { get; set; }
+
+        [ForeignKey("CategoryId")]
+        public RecipeCategory Category { get; set; }
+
+        public string AuthorId { get; set; }
+
+        [ForeignKey("AuthorId")]
+        public User Author { get; set; }
+
         public virtual ICollection<RecipeProduct> Products { get; set; }
 
         public virtual ICollection<RecipeImage> Images { get; set; }
 
         public virtual ICollection<RecipeTag> Tags { get; set; }
+
+        public virtual ICollection<RecipeComment> Comments { get; set; }
+
+        public virtual ICollection<UserFavouriteRecipe> FavouriteRecipes { get; set; }
     }
 
     public class GetRecipeDTO
