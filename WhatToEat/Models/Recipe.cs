@@ -45,6 +45,12 @@ namespace WhatToEat.Models
         [ForeignKey("AuthorId")]
         public User Author { get; set; }
 
+        public int? AverageGrade { get; set; }  //średnia ocen
+
+        public int? AverageVote { get; set; }   //średnia głosów
+
+        public virtual ICollection<RecipeRate> Rate { get; set; }
+
         public virtual ICollection<RecipeProduct> Products { get; set; }
 
         public virtual ICollection<RecipeImage> Images { get; set; }
