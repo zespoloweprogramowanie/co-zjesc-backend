@@ -166,7 +166,6 @@
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="Controllers\RecipesController.cs" />
     <Compile Include="Controllers\StatusController.cs" />
-    <Compile Include="Extension\OwinContextExtensions.cs" />
     <Compile Include="Migrations\201801241758120_0.cs" />
     <Compile Include="Migrations\201801241758120_0.Designer.cs">
       <DependentUpon>201801241758120_0.cs</DependentUpon>
