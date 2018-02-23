@@ -9,6 +9,8 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.Description;
 using System.Web.Http.Results;
+using System.Web.Security;
+using Microsoft.AspNet.Identity;
 using WhatToEat.Models;
 
 namespace WhatToEat.Controllers
