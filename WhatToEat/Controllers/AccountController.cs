@@ -1,15 +1,10 @@
-﻿using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
-using System;
-using System.Collections.Generic;
+﻿using System;
+using Microsoft.AspNet.Identity;
+using System.Data.Entity;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.Http;
-using System.Web.Http.Results;
 using WhatToEat.Models;
 using WhatToEat.Repositories;
 
@@ -18,11 +13,13 @@ namespace WhatToEat.Controllers
     //[RoutePrefix("api/Account")]
     public class AccountController : ApiController
     {
-        private AuthRepository _repo = null;
+        private readonly AuthRepository _repo = null;
+        private AppDb _db;
 
         public AccountController()
         {
             _repo = new AuthRepository();
+            _db = new AppDb();
         }
 
         // POST api/Account/Register
@@ -88,13 +85,21 @@ namespace WhatToEat.Controllers
        
         [Route("api/user")]
         [HttpGet]
-        public IHttpActionResult getName()
+        [Authorize]
+        public IHttpActionResult GetName()
         {
             //var identity = new ClaimsIdentity(context.Options.AuthenticationType);
-            var userName = ClaimsPrincipal.Current.Claims.First(c => c.Type == "sub").Value;
-            var user = new { username = userName };
-            
-            return Json(user);
+            //var userName = ClaimsPrincipal.Current.Claims.First(c => c.Type == "sub").Value;
+            //var user = new { username = userName };
+
+            string user = ClaimsPrincipal.Current.Claims.First(c => c.Type == "sub").Value;
+            string role = ClaimsPrincipal.Current.Claims.First(c => c.Type == "role").Value;
+
+            return Json(new
+            {
+                login = user,
+                role = role
+            });
         }
     }
 }

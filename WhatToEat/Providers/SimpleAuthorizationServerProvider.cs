@@ -2,6 +2,7 @@
 using Microsoft.Owin.Security.OAuth;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net.Http.Formatting;
 using System.Security.Claims;
@@ -24,6 +25,8 @@ namespace WhatToEat.Providers
 
             //context.OwinContext.Response.Headers.Add("Access-Control-Allow-Origin", new[] { "*" });
 
+            var db = new AppDb();
+
             using (AuthRepository _repo = new AuthRepository())
             {
                 User user = await _repo.FindUser(context.UserName, context.Password);
@@ -37,7 +40,18 @@ namespace WhatToEat.Providers
 
             var identity = new ClaimsIdentity(context.Options.AuthenticationType);
             identity.AddClaim(new Claim("sub", context.UserName));
-            identity.AddClaim(new Claim("role", "user"));
+
+            var userRole = db.Users.Include(x => x.Roles)
+                .FirstOrDefault(x => x.UserName == context.UserName)
+                ?.Roles
+                .FirstOrDefault();
+
+            if (userRole != null)
+            {
+                var role = db.Roles.FirstOrDefault(x => x.Id == userRole.RoleId);
+                if (role != null)
+                    identity.AddClaim(new Claim("role", role.Name));
+            }
 
             context.Validated(identity);
 

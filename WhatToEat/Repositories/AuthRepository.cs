@@ -29,7 +29,6 @@ namespace WhatToEat.Repositories
             };
 
             var result = await _userManager.CreateAsync(user, userModel.Password);
-            await _userManager.AddToRoleAsync(user.Id, "User");
 
             return result;
         }
