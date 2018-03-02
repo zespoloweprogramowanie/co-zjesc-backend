@@ -22,17 +22,23 @@ namespace WhatToEat.Models
         [Key]
         public int Id { get; set; }
 
+        [Required]
         [MaxLength(500)]
         public String Name { get; set; }
 
+        [Required]
         public String Description { get; set; }
 
+        [Required]
         public int? Difficulty { get; set; }
 
+        [Required]
         public int? TimeToPrepare { get; set; }
 
+        [Required]
         public int? EstimatedCost { get; set; }
 
+        [Required]
         public int? PortionCount { get; set; }
 
         public int? CategoryId { get; set; }

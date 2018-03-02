@@ -127,5 +127,12 @@ namespace WhatToEat.Controllers
         {
             return db.Products.Count(e => e.Id == id) > 0;
         }
+
+        [Route("api/units")]
+        public IHttpActionResult GetUnits()
+        {
+            var units = db.Unit.ToList();
+            return Ok(units);
+        }
     }
 }
