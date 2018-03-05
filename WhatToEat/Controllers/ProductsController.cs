@@ -1,138 +1,130 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
-using System.Linq;
+﻿using System.Data.Entity;
+using System.Threading.Tasks;
 using System.Net;
-using System.Net.Http;
-using System.Web.Http;
-using System.Web.Http.Description;
-using System.Web.Http.Results;
-using System.Web.Security;
-using Microsoft.AspNet.Identity;
-using WhatToEat.Models;
+using System.Web;
+using System.Web.Mvc;
+using WhatToEat.Core.Extensions;
+using WhatToEat.Domain.Models;
+using WhatToEat.Domain.Services;
 
 namespace WhatToEat.Controllers
 {
-    public class ProductsController : ApiController
+    public class ProductsController : Controller
     {
-        
-        private AppDb db = new AppDb();
+        private readonly IProductsService _productsService;
 
-        // GET: api/Products
-        public IQueryable<ProductDTO> GetProducts()
+        public ProductsController()
         {
-
-            var products = from p in db.Products
-                           select new ProductDTO()
-                           {
-                               id = p.Id,
-                               name = p.Name,
-                               image = p.Image
-                           };
-            return products;
-                           
+            _productsService = new ProductsService(new AppDb());
         }
 
-        // GET: api/Products/5
-        [ResponseType(typeof(Product))]
-        public IHttpActionResult GetProduct(int id)
+        // GET: Products
+        public async Task<ActionResult> Index()
         {
-            Product product = db.Products.Find(id);
+            return View(await _productsService.ListAsync());
+        }
+
+        // GET: Products/Details/5
+        public async Task<ActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            var product = await _productsService.FindAsync((int)id);
             if (product == null)
             {
-                return NotFound();
+                return HttpNotFound();
             }
-
-            return Ok(product);
+            return View(product);
         }
 
-        // PUT: api/Products/5
-        [ResponseType(typeof(void))]
-        public IHttpActionResult PutProduct(int id, Product product)
+        // GET: Products/Create
+        public ActionResult Create()
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            if (id != product.Id)
-            {
-                return BadRequest();
-            }
-
-            db.Entry(product).State = EntityState.Modified;
-
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProductExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return StatusCode(HttpStatusCode.NoContent);
+            return View();
         }
 
-        // POST: api/Products
-        [ResponseType(typeof(Product))]
-        public IHttpActionResult PostProduct(Product product)
+        // POST: Products/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Create([Bind(Include = "Id,Name")] Product product, HttpPostedFileBase image)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                await _productsService.CreateProductAsync(product, image);
+                return RedirectToAction("Index");
             }
 
-            db.Products.Add(product);
-            db.SaveChanges();
-
-            return CreatedAtRoute("DefaultApi", new { id = product.Id }, product);
+            return View(product);
         }
 
-        // DELETE: api/Products/5
-        [ResponseType(typeof(Product))]
-        public IHttpActionResult DeleteProduct(int id)
+        // GET: Products/Edit/5
+        public async Task<ActionResult> Edit(int? id)
         {
-            Product product = db.Products.Find(id);
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Product product = await _productsService.FindAsync((int)id);
             if (product == null)
             {
-                return NotFound();
+                return HttpNotFound();
             }
+            return View(product);
+        }
 
-            db.Products.Remove(product);
-            db.SaveChanges();
+        // POST: Products/Edit/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Edit([Bind(Include = "Id,Name,Image")] Product product, HttpPostedFileBase image)
+        {
+            if (ModelState.IsValid)
+            {
+                await _productsService.EditProductAsync(product, image);
+                return RedirectToAction("Index");
+            }
+            return View(product);
+        }
 
-            return Ok(product);
+        // GET: Products/Delete/5
+        public async Task<ActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+            Product product = await _productsService.FindAsync((int)id);
+            if (product == null)
+            {
+                return HttpNotFound();
+            }
+            return View(product);
+        }
+
+        // POST: Products/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> DeleteConfirmed(int id)
+        {
+            //Product product = await _productsService.FindAsync(id);
+            //db.Products.Remove(product);
+            //await db.SaveChangesAsync();
+            await _productsService.DeleteAsync(id);
+            return RedirectToAction("Index");
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                db.Dispose();
+                _productsService.Dispose();
             }
             base.Dispose(disposing);
-        }
-
-        private bool ProductExists(int id)
-        {
-            return db.Products.Count(e => e.Id == id) > 0;
-        }
-
-        [Route("api/units")]
-        public IHttpActionResult GetUnits()
-        {
-            var units = db.Unit.ToList();
-            return Ok(units);
         }
     }
 }

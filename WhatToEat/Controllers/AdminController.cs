@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Linq;
 using System.Web.Mvc;
-using WhatToEat.Models;
+using WhatToEat.Domain.Models;
 
 namespace WhatToEat.Controllers
 {
@@ -18,7 +15,7 @@ namespace WhatToEat.Controllers
         }
 
         [HttpPost]
-        //Create new Recipe
+        //Dodaj Recipe
         public ActionResult Recipe(Recipe newRecipe)
         {
 
@@ -33,6 +30,16 @@ namespace WhatToEat.Controllers
             {
                 return View(newRecipe);
             }
+        }
+
+        public ActionResult Products()
+        {
+            var products = db
+                .Products
+                .OrderBy(x => x.Id)
+                .ToList();
+
+            return View(products);
         }
     }
 }
