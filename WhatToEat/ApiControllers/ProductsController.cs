@@ -1,48 +1,40 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Web.Http;
 using System.Web.Http.Description;
 using WhatToEat.Domain.Models;
+using WhatToEat.Domain.Services;
 
 namespace WhatToEat.ApiControllers
 {
     public class ProductsController : ApiController
     {
-        
+        private IProductsService _productsService;
         private AppDb db = new AppDb();
+
+        public ProductsController()
+        {
+            _productsService = new ProductsService(new AppDb());
+        }
 
         // GET: api/Products
         public IQueryable<ProductDTO> GetProducts()
         {
-
-            var products = from p in db.Products
-                           select new ProductDTO()
-                           {
-                               id = p.Id,
-                               name = p.Name,
-                               image = p.Image
-                           };
-            return products;
-                           
+            return _productsService.GetProducts();                           
         }
 
         // GET: api/Products/5
-        [ResponseType(typeof(Product))]
+        //[ResponseType(typeof(Product))]
         public IHttpActionResult GetProduct(int id)
         {
-            Product product = db.Products.Find(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(product);
+            return Ok(_productsService.GetProduct(id));
         }
 
         // PUT: api/Products/5
-        [ResponseType(typeof(void))]
+        //[ResponseType(typeof(void))]
         public IHttpActionResult PutProduct(int id, Product product)
         {
             if (!ModelState.IsValid)
@@ -55,25 +47,14 @@ namespace WhatToEat.ApiControllers
                 return BadRequest();
             }
 
-            db.Entry(product).State = EntityState.Modified;
+            var result = _productsService.PutProduct(id, product);
 
-            try
+            if(result == 1)
             {
-                db.SaveChanges();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ProductExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return StatusCode(HttpStatusCode.NoContent);
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return NotFound();
         }
 
         // POST: api/Products
@@ -85,26 +66,28 @@ namespace WhatToEat.ApiControllers
                 return BadRequest(ModelState);
             }
 
-            db.Products.Add(product);
-            db.SaveChanges();
+            Product prod = _productsService.PostProduct(product);
 
-            return CreatedAtRoute("DefaultApi", new { id = product.Id }, product);
+            return CreatedAtRoute("DefaultApi", new { id = prod.Id }, prod);
         }
 
         // DELETE: api/Products/5
         [ResponseType(typeof(Product))]
         public IHttpActionResult DeleteProduct(int id)
         {
-            Product product = db.Products.Find(id);
-            if (product == null)
+            int result = _productsService.DeleteProduct(id);
+            if(result == 1)
             {
-                return NotFound();
+                return StatusCode(HttpStatusCode.NoContent);
             }
 
-            db.Products.Remove(product);
-            db.SaveChanges();
+            return NotFound();
+        }
 
-            return Ok(product);
+        [Route("api/units")]
+        public IHttpActionResult GetUnits()
+        { 
+            return Ok(_productsService.GetUnits());
         }
 
         protected override void Dispose(bool disposing)
@@ -115,17 +98,6 @@ namespace WhatToEat.ApiControllers
             }
             base.Dispose(disposing);
         }
-
-        private bool ProductExists(int id)
-        {
-            return db.Products.Count(e => e.Id == id) > 0;
-        }
-
-        [Route("api/units")]
-        public IHttpActionResult GetUnits()
-        {
-            var units = db.Unit.ToList();
-            return Ok(units);
-        }
+        
     }
 }

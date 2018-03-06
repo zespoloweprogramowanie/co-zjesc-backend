@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Hosting;
+using System.Web.ModelBinding;
 using WhatToEat.Core;
 using WhatToEat.Core.Helpers;
 using WhatToEat.Domain.Exceptions;
@@ -18,6 +20,12 @@ namespace WhatToEat.Domain.Services
     {
         Task<Product> CreateProductAsync(Product product, HttpPostedFileBase image);
         Task<Product> EditProductAsync(Product product, HttpPostedFileBase image);
+        IQueryable<ProductDTO> GetProducts();
+        Product GetProduct(int id);
+        int PutProduct(int id, Product product);
+        Product PostProduct(Product product);
+        int DeleteProduct(int id);
+        List<Unit> GetUnits();
     }
 
     public class ProductsService : EntityService<Product>, IProductsService
@@ -75,6 +83,98 @@ namespace WhatToEat.Domain.Services
                 File.Delete(ServerHelper.GetAbsolutePath(current.Image));
             current.Image = relativeImagePath;
             return current;
+        }
+
+        public IQueryable<ProductDTO> GetProducts()
+        {
+            var products = from p in _db.Products
+                           select new ProductDTO()
+                           {
+                               id = p.Id,
+                               name = p.Name,
+                               image = p.Image
+                           };
+            return products;
+        }
+
+        public Product GetProduct(int id)
+        {
+            Product product = _db.Products.Find(id);
+            if (product == null)
+            {
+                return null;
+            }
+
+            return product;
+        }
+
+        public int PutProduct(int id, Product product)
+        {
+            var result = 0;
+            
+            _db.Entry(product).State = EntityState.Modified;
+
+            try
+            {
+                _db.SaveChanges();
+                result = 1;
+            }
+            catch (Exception)
+            {
+                if (!ProductExists(id))
+                {
+                    return result;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return result;
+        }
+
+        private bool ProductExists(int id)
+        {
+            return _db.Products.Count(e => e.Id == id) > 0;
+        }
+
+        public Product PostProduct(Product product)
+        {
+            try
+            {
+                _db.Products.Add(product);
+                _db.SaveChanges();
+            }
+            catch (Exception)
+            {
+
+            }
+
+            return product;
+        }
+
+        public int DeleteProduct(int id)
+        {
+            var result = 0;
+
+            Product product = _db.Products.Find(id);
+            if (product == null)
+            {
+                return result;
+            }
+
+            _db.Products.Remove(product);
+            _db.SaveChanges();
+            result = 1;
+         
+            return result;
+        }
+
+        public List<Unit> GetUnits()
+        {
+            var units = _db.Unit.ToList();
+            return units;
         }
     }
 }
