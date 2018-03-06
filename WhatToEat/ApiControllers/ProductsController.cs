@@ -90,6 +90,12 @@ namespace WhatToEat.ApiControllers
             return Ok(_productsService.GetUnits());
         }
 
+        [Route("api/tags")]
+        public IHttpActionResult GetTags()
+        {
+            return Ok(_productsService.GetTags());
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

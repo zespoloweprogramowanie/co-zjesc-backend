@@ -26,6 +26,7 @@ namespace WhatToEat.Domain.Services
         Product PostProduct(Product product);
         int DeleteProduct(int id);
         List<Unit> GetUnits();
+        List<RecipeTag> GetTags();
     }
 
     public class ProductsService : EntityService<Product>, IProductsService
@@ -175,6 +176,12 @@ namespace WhatToEat.Domain.Services
         {
             var units = _db.Unit.ToList();
             return units;
+        }
+
+        public List<RecipeTag> GetTags()
+        {
+            var tags = _db.RecipeTags.ToList();
+            return tags;
         }
     }
 }
