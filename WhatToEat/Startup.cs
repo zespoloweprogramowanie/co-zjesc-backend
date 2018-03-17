@@ -3,6 +3,7 @@ using Microsoft.Owin.Security.OAuth;
 using Owin;
 using System;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using WhatToEat.Domain.Providers;
 
 [assembly: OwinStartup(typeof(WhatToEat.Startup))]
@@ -16,7 +17,7 @@ namespace WhatToEat
         public void Configuration(IAppBuilder app)
         {
             HttpConfiguration config = new HttpConfiguration();
-
+            config.EnableCors(new EnableCorsAttribute("*", "*", "GET, POST, OPTIONS, PUT, DELETE"));
             ConfigureOAuth(app);
 
             WebApiConfig.Register(config);

@@ -90,8 +90,8 @@ namespace WhatToEat.ApiControllers
             //var userName = ClaimsPrincipal.Current.Claims.First(c => c.Type == "sub").Value;
             //var user = new { username = userName };
 
-            string user = ClaimsPrincipal.Current.Claims.First(c => c.Type == "sub").Value;
-            string role = ClaimsPrincipal.Current.Claims.First(c => c.Type == "role").Value;
+            string user = ClaimsPrincipal.Current.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+            string role = ClaimsPrincipal.Current.Claims.FirstOrDefault(c => c.Type == "role")?.Value;
 
             return Json(new
             {

@@ -19,7 +19,7 @@ namespace WhatToEat.Domain.Services
         {
             _db = context;
             _dbset = _db.Set<T>();
-            _log = new DbLogger(context);
+            //_log = new DbLogger(context);
         }
 
         public T Create(T obj)
