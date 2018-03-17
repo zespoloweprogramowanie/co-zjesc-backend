@@ -27,6 +27,8 @@ namespace WhatToEat.Domain.Services
         int DeleteProduct(int id);
         List<Unit> GetUnits();
         List<RecipeTag> GetTags();
+
+        Task<Product> GetOrCreateProductByNameAsync(string name);
     }
 
     public class ProductsService : EntityService<Product>, IProductsService
@@ -174,7 +176,7 @@ namespace WhatToEat.Domain.Services
 
         public List<Unit> GetUnits()
         {
-            var units = _db.Unit.ToList();
+            var units = _db.Units.ToList();
             return units;
         }
 
@@ -182,6 +184,22 @@ namespace WhatToEat.Domain.Services
         {
             var tags = _db.RecipeTags.ToList();
             return tags;
+        }
+
+        public async Task<Product> GetOrCreateProductByNameAsync(string name)
+        {
+            var product = await _dbset
+                .FirstOrDefaultAsync(x => x.Name == name);
+
+            if (product != null)
+                return product;
+
+            product = await CreateAsync(new Product()
+            {
+                Name = name
+            });
+
+            return product;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using WhatToEat.Core;
 using WhatToEat.Core.Extensions;
 using WhatToEat.Domain.Models;
 
@@ -10,6 +11,7 @@ namespace WhatToEat.Domain.Services
 {
     public abstract class EntityService<T> : IEntityService<T> where T : class
     {
+        private ILogger _log;
         protected IContext _db;
         protected IDbSet<T> _dbset;
 
@@ -17,6 +19,7 @@ namespace WhatToEat.Domain.Services
         {
             _db = context;
             _dbset = _db.Set<T>();
+            _log = new DbLogger(context);
         }
 
         public T Create(T obj)
@@ -28,6 +31,9 @@ namespace WhatToEat.Domain.Services
 
             _dbset.Add(obj);
             _db.SaveChanges();
+
+            _log.Info($"Dodano rekord {obj.GetType()}");
+
             return obj;
         }
 

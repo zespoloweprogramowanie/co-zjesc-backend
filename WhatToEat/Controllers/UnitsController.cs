@@ -13,7 +13,7 @@ namespace WhatToEat.Controllers
         // GET: Units
         public async Task<ActionResult> Index()
         {
-            return View(await db.Unit.ToListAsync());
+            return View(await db.Units.ToListAsync());
         }
 
         // GET: Units/Details/5
@@ -23,7 +23,7 @@ namespace WhatToEat.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Unit unit = await db.Unit.FindAsync(id);
+            Unit unit = await db.Units.FindAsync(id);
             if (unit == null)
             {
                 return HttpNotFound();
@@ -46,7 +46,7 @@ namespace WhatToEat.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Unit.Add(unit);
+                db.Units.Add(unit);
                 await db.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
@@ -61,7 +61,7 @@ namespace WhatToEat.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Unit unit = await db.Unit.FindAsync(id);
+            Unit unit = await db.Units.FindAsync(id);
             if (unit == null)
             {
                 return HttpNotFound();
@@ -92,7 +92,7 @@ namespace WhatToEat.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Unit unit = await db.Unit.FindAsync(id);
+            Unit unit = await db.Units.FindAsync(id);
             if (unit == null)
             {
                 return HttpNotFound();
@@ -105,8 +105,8 @@ namespace WhatToEat.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteConfirmed(int id)
         {
-            Unit unit = await db.Unit.FindAsync(id);
-            db.Unit.Remove(unit);
+            Unit unit = await db.Units.FindAsync(id);
+            db.Units.Remove(unit);
             await db.SaveChangesAsync();
             return RedirectToAction("Index");
         }

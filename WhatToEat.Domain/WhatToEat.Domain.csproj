@@ -69,6 +69,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\Recipe\CreateCommand.cs" />
     <Compile Include="DbLogger.cs" />
     <Compile Include="Exceptions\ServiceException.cs" />
     <Compile Include="Migrations\201801241758120_0.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Services\IEntityService.cs" />
     <Compile Include="Services\IService.cs" />
     <Compile Include="Services\LogsService.cs" />
+    <Compile Include="Services\UnitsService.cs" />
     <Compile Include="Services\RecipesService.cs" />
     <Compile Include="Services\ProductsService.cs" />
   </ItemGroup>

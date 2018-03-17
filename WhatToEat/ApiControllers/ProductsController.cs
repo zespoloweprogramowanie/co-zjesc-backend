@@ -13,7 +13,7 @@ namespace WhatToEat.ApiControllers
     public class ProductsController : ApiController
     {
         private IProductsService _productsService;
-        private AppDb db = new AppDb();
+        //private AppDb db = new AppDb();
 
         public ProductsController()
         {
@@ -84,25 +84,10 @@ namespace WhatToEat.ApiControllers
             return NotFound();
         }
 
-        [Route("api/units")]
-        public IHttpActionResult GetUnits()
-        { 
-            return Ok(_productsService.GetUnits());
-        }
-
         [Route("api/tags")]
         public IHttpActionResult GetTags()
         {
             return Ok(_productsService.GetTags());
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
         }
         
     }

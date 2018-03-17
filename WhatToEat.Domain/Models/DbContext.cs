@@ -11,7 +11,7 @@ namespace WhatToEat.Domain.Models
     {
         IDbSet<Recipe> Recipes { get; set; }
         IDbSet<Product> Products { get; set; }
-        IDbSet<Unit> Unit { get; set; }
+        IDbSet<Unit> Units { get; set; }
         IDbSet<RecipeProduct> RecipeProducts { get; set; }
         IDbSet<RecipeTag> RecipeTags { get; set; }
         IDbSet<RecipeCategory> RecipeCategories { get; set; }
@@ -34,7 +34,7 @@ namespace WhatToEat.Domain.Models
 
         //public virtual DbSet<Recipe> Recipes { get; set; }
         //public virtual DbSet<Product> Products { get; set; }
-        //public virtual DbSet<Unit> Unit { get; set; }
+        //public virtual DbSet<Units> Units { get; set; }
         //public virtual DbSet<RecipeProduct> RecipeProducts { get; set; }
         //public virtual DbSet<RecipeTag> RecipeTags { get; set; }
         //public System.Data.Entity.DbSet<RecipeCategory> RecipeCategories { get; set; }
@@ -58,7 +58,7 @@ namespace WhatToEat.Domain.Models
 
         public IDbSet<Recipe> Recipes { get; set; }
         public IDbSet<Product> Products { get; set; }
-        public IDbSet<Unit> Unit { get; set; }
+        public IDbSet<Unit> Units { get; set; }
         public IDbSet<RecipeProduct> RecipeProducts { get; set; }
         public IDbSet<RecipeTag> RecipeTags { get; set; }
         public IDbSet<RecipeCategory> RecipeCategories { get; set; }
