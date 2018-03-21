@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Hosting;
 using WhatToEat.Core;
+using WhatToEat.Core.Extensions;
 using WhatToEat.Core.Helpers;
 using WhatToEat.Domain.Commands.Recipe;
 using WhatToEat.Domain.Exceptions;
@@ -22,6 +23,7 @@ namespace WhatToEat.Domain.Services
         Task<Recipe> GetRecipeForPreviewAsync(int recipeId);
         Task<IEnumerable<Recipe>> GetRecipesByProductsAsync(List<int> productIds);
         Task<Recipe> CreateRecipeAsync(CreateCommand command);
+        Task<Recipe> UpdateRecipeAsync(UpdateCommand command);
     }
 
     public class RecipesService : EntityService<Recipe>, IRecipesService
@@ -125,6 +127,45 @@ namespace WhatToEat.Domain.Services
 
 
             return await CreateAsync(recipe);
+        }
+
+        public async Task<Recipe> UpdateRecipeAsync(UpdateCommand command)
+        {
+            var current = await _dbset.FindAsync(command.id);
+
+
+
+            List<RecipeProduct> recipeProducts = new List<RecipeProduct>();
+
+            foreach (var product in command.products)
+            {
+                var properProduct = await _productsService.GetOrCreateProductByNameAsync(product.name);
+
+                RecipeProduct recipeProduct = new RecipeProduct();
+                recipeProduct.NumberOfUnit = product.amount;
+                recipeProduct.ProductId = properProduct.Id;
+                recipeProduct.UnitId = product.unit;
+
+                recipeProducts.Add(recipeProduct);
+            }
+
+
+            current.Name = command.title;
+            current.Description = command.description;
+            current.Difficulty = command.difficulty;
+            current.TimeToPrepare = command.timeToPrepare;
+            current.EstimatedCost = command.estimatedCost;
+            current.PortionCount = command.portionCount;
+            current.Images = command.images.Select(x => new RecipeImage()
+            {
+                Path = x
+            }).ToList();
+            current.Products = recipeProducts;
+           
+
+
+            var updatedRecipe = await UpdateAsync(current);
+            return updatedRecipe;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.EnterpriseServices.Internal;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Http.Description;
+using WhatToEat.Core.Helpers;
 using WhatToEat.Domain.Commands.Recipe;
 using WhatToEat.Domain.Models;
 using WhatToEat.Domain.Services;
@@ -80,7 +82,7 @@ namespace WhatToEat.ApiControllers
                     description = x.Description,
                     difficulty = x.Difficulty,
                     timeToPrepare = x.TimeToPrepare,
-                    tags = x.Tags.Select(y => new GetRecipeDTOTag {id = y.Id, name = y.Name}).ToList(),
+                    tags = x.Tags.Select(y => new GetRecipeDTOTag { id = y.Id, name = y.Name }).ToList(),
                     estimatedCost = x.EstimatedCost,
                     portionCount = x.PortionCount
                 };
@@ -111,40 +113,42 @@ namespace WhatToEat.ApiControllers
             }));
         }
 
-        //// PUT: api/Recipes/5
-        //[ResponseType(typeof(void))]
-        //public IHttpActionResult PutRecipe(int id, Recipe recipe)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState);
-        //    }
+        // PUT: api/Recipes/5
+        [ResponseType(typeof(void))]
+        public async Task<IHttpActionResult> PutRecipe(int id, UpdateCommand recipe)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-        //    if (id != recipe.Id)
-        //    {
-        //        return BadRequest();
-        //    }
+            if (id != recipe.id)
+            {
+                return BadRequest();
+            }
 
-        //    db.Entry(recipe).State = EntityState.Modified;
+            var updated = await _recipesService.UpdateRecipeAsync(recipe);
+            return Ok(updated.Id);
+            //db.Entry(recipe).State = EntityState.Modified;
 
-        //    try
-        //    {
-        //        db.SaveChanges();
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!RecipeExists(id))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
+            //try
+            //{
+            //    db.SaveChanges();
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!RecipeExists(id))
+            //    {
+            //        return NotFound();
+            //    }
+            //    else
+            //    {
+            //        throw;
+            //    }
+            //}
 
-        //    return StatusCode(HttpStatusCode.NoContent);
-        //}
+            //return StatusCode(HttpStatusCode.NoContent);
+        }
 
         // POST: api/Recipes
         [ResponseType(typeof(Recipe))]
@@ -156,8 +160,8 @@ namespace WhatToEat.ApiControllers
             }
 
             var createdRecipe = await _recipesService.CreateRecipeAsync(command);
-            
-            return CreatedAtRoute("DefaultApi", new { id = createdRecipe.Id }, createdRecipe);
+            return Ok(createdRecipe.Id);
+            //return CreatedAtRoute("DefaultApi", new { id = createdRecipe.Id }, createdRecipe);
         }
 
         //// DELETE: api/Recipes/5
@@ -201,7 +205,18 @@ namespace WhatToEat.ApiControllers
             }
 
             var filePaths = _recipesService.UploadRecipeImages(files);
-            return Ok(filePaths.Select(x => x.Substring(1)));
+            return Ok(filePaths.Select(x => new UploadRecipeImagesResult()
+            {
+                relativeUrl = x,
+                absoluteUrl = Url.Content(x)
+            }
+            ));
+        }
+
+        public class UploadRecipeImagesResult
+        {
+            public string relativeUrl { get; set; }
+            public string absoluteUrl { get; set; }
         }
     }
 }
