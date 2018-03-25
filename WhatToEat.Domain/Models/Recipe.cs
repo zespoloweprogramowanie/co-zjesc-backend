@@ -65,13 +65,21 @@ namespace WhatToEat.Domain.Models
         public virtual ICollection<UserFavouriteRecipe> FavouriteRecipes { get; set; }
     }
 
+
+
+    public class UploadRecipeImagesResult
+    {
+        public string relativeUrl { get; set; }
+        public string absoluteUrl { get; set; }
+    }
+
     public class GetRecipeDTO
     {
         public int id { get; set; }
 
         public List<GetRecipeDTOProduct> products { get; set; }
 
-        public List<string> images { get; set; }
+        public List<UploadRecipeImagesResult> images { get; set; }
 
         public string title { get; set; }
 

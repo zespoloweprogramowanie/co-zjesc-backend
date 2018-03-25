@@ -77,7 +77,11 @@ namespace WhatToEat.ApiControllers
                         },
                         amount = y.NumberOfUnit
                     }).ToList(),
-                    images = x.Images.Select(y => y.Path).ToList(),
+                    images = x.Images.Select(y => new UploadRecipeImagesResult()
+                    {
+                        relativeUrl = y.Path,
+                        absoluteUrl = Url.Content(y.Path)
+                    }).ToList(),
                     title = x.Name,
                     description = x.Description,
                     difficulty = x.Difficulty,
@@ -151,7 +155,7 @@ namespace WhatToEat.ApiControllers
         }
 
         // POST: api/Recipes
-        [ResponseType(typeof(Recipe))]
+        [ResponseType(typeof(int))]
         public async Task<IHttpActionResult> PostRecipe(CreateCommand command)
         {
             if (!ModelState.IsValid)
@@ -211,12 +215,6 @@ namespace WhatToEat.ApiControllers
                 absoluteUrl = Url.Content(x)
             }
             ));
-        }
-
-        public class UploadRecipeImagesResult
-        {
-            public string relativeUrl { get; set; }
-            public string absoluteUrl { get; set; }
         }
     }
 }

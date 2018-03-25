@@ -117,12 +117,13 @@ namespace WhatToEat.Domain.Services
                 TimeToPrepare = command.timeToPrepare,
                 EstimatedCost = command.estimatedCost,
                 PortionCount = command.portionCount,
-                Images = command.images.Select(x => new RecipeImage(){
+                Images = command.images.Select(x => new RecipeImage()
+                {
                     Path = x
                 }).ToList(),
                 Products = recipeProducts
             };
-            
+
 
 
 
@@ -140,13 +141,16 @@ namespace WhatToEat.Domain.Services
             foreach (var product in command.products)
             {
                 var properProduct = await _productsService.GetOrCreateProductByNameAsync(product.name);
+                if (properProduct.Id <= 0)
+                {
+                    RecipeProduct recipeProduct = new RecipeProduct();
+                    recipeProduct.NumberOfUnit = product.amount;
+                    recipeProduct.ProductId = properProduct.Id;
+                    recipeProduct.UnitId = product.unit;
 
-                RecipeProduct recipeProduct = new RecipeProduct();
-                recipeProduct.NumberOfUnit = product.amount;
-                recipeProduct.ProductId = properProduct.Id;
-                recipeProduct.UnitId = product.unit;
+                    recipeProducts.Add(recipeProduct);
 
-                recipeProducts.Add(recipeProduct);
+                }
             }
 
 
@@ -161,7 +165,7 @@ namespace WhatToEat.Domain.Services
                 Path = x
             }).ToList();
             current.Products = recipeProducts;
-           
+
 
 
             var updatedRecipe = await UpdateAsync(current);

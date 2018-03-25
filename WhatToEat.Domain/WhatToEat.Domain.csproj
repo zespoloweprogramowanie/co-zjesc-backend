@@ -119,6 +119,7 @@
     <Compile Include="Services\IEntityService.cs" />
     <Compile Include="Services\IService.cs" />
     <Compile Include="Services\LogsService.cs" />
+    <Compile Include="Services\RecipeCategoriesService.cs" />
     <Compile Include="Services\UnitsService.cs" />
     <Compile Include="Services\RecipesService.cs" />
     <Compile Include="Services\ProductsService.cs" />
