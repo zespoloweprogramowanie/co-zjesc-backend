@@ -16,13 +16,13 @@ namespace WhatToEat
 
         public void Configuration(IAppBuilder app)
         {
-            app.UseCors(Microsoft.Owin.Cors.CorsOptions.AllowAll);
             HttpConfiguration config = new HttpConfiguration();
             config.EnableCors(new EnableCorsAttribute("*", "*", "GET, POST, OPTIONS, PUT, DELETE"));
             ConfigureOAuth(app);
 
             WebApiConfig.Register(config);
             app.UseWebApi(config);
+            app.UseCors(Microsoft.Owin.Cors.CorsOptions.AllowAll);
         }
 
         public void ConfigureOAuth(IAppBuilder app)

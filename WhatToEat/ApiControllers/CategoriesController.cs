@@ -11,11 +11,11 @@ using WhatToEat.Domain.Services;
 namespace WhatToEat.ApiControllers
 {
     [RoutePrefix("api/categories")]
-    public class RecipeCategoriesController : ApiController
+    public class CategoriesController : ApiController
     {
         private IRecipeCategoriesService _recipeCategoriesService;
 
-        public RecipeCategoriesController()
+        public CategoriesController()
         {
             _recipeCategoriesService = new RecipeCategoriesService(new AppDb());
         }

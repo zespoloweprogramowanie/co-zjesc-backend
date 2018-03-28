@@ -27,32 +27,43 @@ namespace WhatToEat.ApiControllers
         }
 
         // GET: api/Recipes
-        [ResponseType(typeof(Recipe))]
-        public async Task<IHttpActionResult> GetRecipes()
-        {
-            var list = await _recipesService.ListAsync();
-            var recipes = list.Select(x =>
-                new
-                {
-                    id = x.Id,
-                    products = x.Products.Select(y => y.Id).ToList(),
-                    images = x.Images.Select(y => y.Path).ToList(),
-                    title = x.Name,
-                    description = x.Description,
-                    difficulty = x.Difficulty,
-                    timeToPrepare = x.TimeToPrepare,
-                    tags = x.Tags.Select(y => y.Name).ToList(),
-                    estimatedCost = x.EstimatedCost,
-                    portionCount = x.PortionCount
+        [ResponseType(typeof(GetRecipesByProductsModel))]
 
-                });
+        [Route("api/recipes")]
+        public async Task<IHttpActionResult> GetRecipes(int? category = null)
+        {
+
+
+            //var list = await _recipesService.ListAsync();
+            //var recipes = list.Select(x =>
+            //    new
+            //    {
+            //        id = x.Id,
+            //        products = x.Products.Select(y => y.Id).ToList(),
+            //        images = x.Images.Select(y => y.Path).ToList(),
+            //        title = x.Name,
+            //        description = x.Description,
+            //        difficulty = x.Difficulty,
+            //        timeToPrepare = x.TimeToPrepare,
+            //        tags = x.Tags.Select(y => y.Name).ToList(),
+            //        estimatedCost = x.EstimatedCost,
+            //        portionCount = x.PortionCount
+
+            //    });
 
             //if (recipes == null)
             //{
             //    return NotFound();
             //}
 
-            return Ok(recipes);
+            var recipes = await _recipesService.GetRecipesByFilters(category);
+            var output = recipes.Select(x => new GetRecipesByProductsModel()
+            {
+                id = x.Id,
+                title = x.Name,
+                image = ((x.Images.Count > 0) ? Url.Content(x.Images.FirstOrDefault().Path) : "")
+            });
+            return Ok(output);
         }
 
         // GET: api/Recipes/5
@@ -99,21 +110,27 @@ namespace WhatToEat.ApiControllers
             return Ok(recipe);
         }
 
+        class GetRecipesByProductsModel
+        {
+            public int id { get; set; }
+            public string title { get; set; }
+            public string image { get; set; }
+        }
+
         // POST: api/GetRecipesByProducts
         [HttpPost]
         [Route("api/recipes/getRecipesByProducts")]
-        [ResponseType(typeof(Recipe))]
+        [ResponseType(typeof(GetRecipesByProductsModel))]
         //[HttpOptions]
         public async Task<IHttpActionResult> GetRecipesByProducts(List<int> productIds)
         {
-            //var recipes = db.Recipes.Include(x => x.Products).Where(x => x.Products.Any(y => productIds.Any(z => z == y.ProductId))).ToList();
-            //var recipes = db.Recipes.ToList();
             var recipes = await _recipesService.GetRecipesByProductsAsync(productIds);
-            return Ok(recipes.Select(x => new
+
+            return Ok(recipes.Select(x => new GetRecipesByProductsModel()
             {
                 id = x.Id,
                 title = x.Name,
-                image = ((x.Images.Count > 0) ? x.Images.FirstOrDefault().Path : "")
+                image = ((x.Images.Count > 0) ? Url.Content(x.Images.FirstOrDefault().Path) : "")
             }));
         }
 
@@ -133,25 +150,6 @@ namespace WhatToEat.ApiControllers
 
             var updated = await _recipesService.UpdateRecipeAsync(recipe);
             return Ok(updated.Id);
-            //db.Entry(recipe).State = EntityState.Modified;
-
-            //try
-            //{
-            //    db.SaveChanges();
-            //}
-            //catch (DbUpdateConcurrencyException)
-            //{
-            //    if (!RecipeExists(id))
-            //    {
-            //        return NotFound();
-            //    }
-            //    else
-            //    {
-            //        throw;
-            //    }
-            //}
-
-            //return StatusCode(HttpStatusCode.NoContent);
         }
 
         // POST: api/Recipes
@@ -168,26 +166,12 @@ namespace WhatToEat.ApiControllers
             //return CreatedAtRoute("DefaultApi", new { id = createdRecipe.Id }, createdRecipe);
         }
 
-        //// DELETE: api/Recipes/5
-        //[ResponseType(typeof(Recipe))]
-        //public IHttpActionResult DeleteRecipe(int id)
-        //{
-        //    Recipe recipe = db.Recipes.Find(id);
-        //    if (recipe == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    db.Recipes.Remove(recipe);
-        //    db.SaveChanges();
-
-        //    return Ok(recipe);
-        //}
-
-        //private bool RecipeExists(int id)
-        //{
-        //    return db.Recipes.Count(e => e.Id == id) > 0;
-        //}
+        // DELETE: api/Recipes/5
+        public async Task<IHttpActionResult> DeleteRecipe(int id)
+        {
+            await _recipesService.DeleteAsync(id);
+            return Ok();
+        }
 
         [HttpPost]
         [Route("api/recipes/uploadRecipeImages")]
