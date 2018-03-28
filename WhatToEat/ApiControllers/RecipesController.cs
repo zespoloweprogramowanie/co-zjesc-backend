@@ -55,6 +55,27 @@ namespace WhatToEat.ApiControllers
             return Ok(recipes);
         }
 
+        // GET: api/Recipes?search='fragment tytułu'
+        [HttpGet]
+        [AllowAnonymous]
+        [ResponseType(typeof(Recipe))]
+        public async Task<IHttpActionResult> GetRecipes(string search)
+        {
+            var list = await _recipesService.GetRecipesForTitle(search);
+
+            return Json(list);
+        }
+
+        [HttpGet]
+        [Route("api/recipes/getRecipesToAccept")]
+        [ResponseType(typeof(Recipe))]
+        public async Task<IHttpActionResult> GetRecipesToAccept()
+        {
+            var list = await _recipesService.GetRecipesToAccept();
+
+            return Json(list);
+        }
+
         // GET: api/Recipes/5
         [ResponseType(typeof(Recipe))]
         public async Task<IHttpActionResult> GetRecipe(int id)
@@ -216,5 +237,6 @@ namespace WhatToEat.ApiControllers
             }
             ));
         }
+        
     }
 }

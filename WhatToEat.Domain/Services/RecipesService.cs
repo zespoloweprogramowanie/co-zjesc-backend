@@ -24,6 +24,8 @@ namespace WhatToEat.Domain.Services
         Task<IEnumerable<Recipe>> GetRecipesByProductsAsync(List<int> productIds);
         Task<Recipe> CreateRecipeAsync(CreateCommand command);
         Task<Recipe> UpdateRecipeAsync(UpdateCommand command);
+        Task<IEnumerable<Recipe>> GetRecipesForTitle(string title);
+        Task<IEnumerable<Recipe>> GetRecipesToAccept();
     }
 
     public class RecipesService : EntityService<Recipe>, IRecipesService
@@ -170,6 +172,26 @@ namespace WhatToEat.Domain.Services
 
             var updatedRecipe = await UpdateAsync(current);
             return updatedRecipe;
+        }
+
+        public async Task<IEnumerable<Recipe>> GetRecipesForTitle(string title)
+        {
+            var list = await _dbset
+                .Include(x => x.Products)
+                .Include("Products.Product")
+                .Include("Products.Unit")
+                .Include(x => x.Images)
+                .Include(x => x.Tags)
+                .Where(x => x.Name.Contains(title)).ToListAsync();
+
+            return list;
+        }
+
+        public async Task<IEnumerable<Recipe>> GetRecipesToAccept()
+        {
+            var list = await _db.Recipes.Join(_db.RecipeComment, r => r.Id, c => c.RecipeId, (r, c) => new { Recipe = r, Comment = c }).Where(x => x.Comment.Accepted == false).Select(x => x.Recipe).ToListAsync();
+
+            return list;
         }
     }
 }
