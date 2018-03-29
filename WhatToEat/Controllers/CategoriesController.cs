@@ -7,7 +7,7 @@ using WhatToEat.Domain.Models;
 
 namespace WhatToEat.Controllers
 {
-    public class RecipeCategoriesController : Controller
+    public class CategoriesController : Controller
     {
         private AppDb db = new AppDb();
 
