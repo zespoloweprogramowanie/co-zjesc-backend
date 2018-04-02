@@ -26,6 +26,7 @@ namespace WhatToEat.Domain.Services
         Task<Recipe> UpdateRecipeAsync(UpdateCommand command);
         Task<IEnumerable<Recipe>> GetRecipesForTitle(string title);
         Task<IEnumerable<Recipe>> GetRecipesToAccept();
+        Task<IEnumerable<Recipe>> GetRecipesByFilters(int? categoryId);
     }
 
     public class RecipesService : EntityService<Recipe>, IRecipesService
@@ -43,7 +44,15 @@ namespace WhatToEat.Domain.Services
             _productsService = new ProductsService(new AppDb());
         }
 
-        public List<string> UploadRecipeImages(IEnumerable<HttpPostedFile> files)
+        public async Task<IEnumerable<Recipe>> GetRecipesByFilters(int? categoryId)
+        {
+            var list = await _dbset
+                .Where(x => x.CategoryId == categoryId || categoryId == null)
+                .ToListAsync();
+            return list;
+        }
+
+    public List<string> UploadRecipeImages(IEnumerable<HttpPostedFile> files)
         {
             string directoryGuid = Guid.NewGuid().ToString();
             string directoryRelativePath = $@"~/Content/Images/Recipes/{directoryGuid}";
