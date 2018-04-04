@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -27,6 +28,7 @@ namespace WhatToEat.Domain.Services
         Task<IEnumerable<Recipe>> GetRecipesForTitle(string title);
         Task<IEnumerable<Recipe>> GetRecipesToAccept();
         Task<IEnumerable<Recipe>> GetRecipesByFilters(int? categoryId);
+        Task<IEnumerable<Recipe>> GetMyRecipes();
     }
 
     public class RecipesService : EntityService<Recipe>, IRecipesService
@@ -199,6 +201,21 @@ namespace WhatToEat.Domain.Services
         public async Task<IEnumerable<Recipe>> GetRecipesToAccept()
         {
             var list = await _db.Recipes.Join(_db.RecipeComment, r => r.Id, c => c.RecipeId, (r, c) => new { Recipe = r, Comment = c }).Where(x => x.Comment.Accepted == false).Select(x => x.Recipe).ToListAsync();
+
+            return list;
+        }
+
+        public async Task<IEnumerable<Recipe>> GetMyRecipes()
+        {
+            string userId = ClaimsPrincipal.Current.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
+
+            var list = await _dbset
+                .Include(x => x.Products)
+                .Include("Products.Product")
+                .Include("Products.Unit")
+                .Include(x => x.Images)
+                .Include(x => x.Tags)
+                .Where(x => x.AuthorId == userId).ToListAsync();
 
             return list;
         }

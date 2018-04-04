@@ -45,7 +45,10 @@ namespace WhatToEat.Domain.Providers
             {
                 var role = db.Roles.FirstOrDefault(x => x.Id == userRole.RoleId);
                 if (role != null)
+                {
                     identity.AddClaim(new Claim("role", role.Name));
+                    identity.AddClaim(new Claim("id", userRole.UserId));
+                }
             }
 
             context.Validated(identity);

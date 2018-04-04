@@ -16,6 +16,7 @@ using WhatToEat.Domain.Services;
 
 namespace WhatToEat.ApiControllers
 {
+    [Authorize]
     public class RecipesController : ApiController
     {
         private IRecipesService _recipesService;
@@ -221,6 +222,15 @@ namespace WhatToEat.ApiControllers
             }
             ));
         }
-        
+
+        [HttpGet]
+        [Route("api/recipes/getMyRecipes")]
+        public async Task<IHttpActionResult> GetMyRecipes()
+        {
+            var list = await _recipesService.GetMyRecipes();
+
+            return Ok(list);
+        }
+
     }
 }
