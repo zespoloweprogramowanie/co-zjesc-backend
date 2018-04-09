@@ -152,7 +152,7 @@ namespace WhatToEat.ApiControllers
             {
                 id = x.Id,
                 title = x.Name,
-                image = ((x.Images.Count > 0) ? Url.Content(x.Images.FirstOrDefault().Path) : "")
+                image = x.Images.Count > 0 ? Url.Content(x.Images.FirstOrDefault()?.Path) : ""
             }));
         }
 
