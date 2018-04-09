@@ -16,7 +16,6 @@ using WhatToEat.Domain.Services;
 
 namespace WhatToEat.ApiControllers
 {
-    [Authorize]
     public class RecipesController : ApiController
     {
         private IRecipesService _recipesService;
@@ -29,9 +28,9 @@ namespace WhatToEat.ApiControllers
 
         // GET: api/Recipes
         [ResponseType(typeof(GetRecipesByProductsModel))]
-
+        [AllowAnonymous]
         [Route("api/recipes")]
-        public async Task<IHttpActionResult> GetRecipes(int? category = null)
+        public async Task<IHttpActionResult> GetRecipes(int? category = null, string search = "")
         {
 
 
@@ -57,7 +56,21 @@ namespace WhatToEat.ApiControllers
             //    return NotFound();
             //}
 
-            var recipes = await _recipesService.GetRecipesByFilters(category);
+            IEnumerable<Recipe> recipes = new List<Recipe>();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                recipes = await _recipesService.GetRecipesForTitle(search);
+            }
+            else if (category != null)
+            {
+                recipes = await _recipesService.GetRecipesByFilters(category);
+            }
+            else
+            {
+                recipes = _recipesService.GetAll();
+            }
+
             var output = recipes.Select(x => new GetRecipesByProductsModel()
             {
                 id = x.Id,
@@ -68,15 +81,15 @@ namespace WhatToEat.ApiControllers
         }
 
         // GET: api/Recipes?search='fragment tytułu'
-        [HttpGet]
-        [AllowAnonymous]
-        [ResponseType(typeof(Recipe))]
-        public async Task<IHttpActionResult> GetRecipes(string search)
-        {
-            var list = await _recipesService.GetRecipesForTitle(search);
+        //[HttpGet]
+        //[AllowAnonymous]
+        //[ResponseType(typeof(Recipe))]
+        //public async Task<IHttpActionResult> GetRecipes(string search)
+        //{
+        //    var list = await _recipesService.GetRecipesForTitle(search);
 
-            return Json(list);
-        }
+        //    return Json(list);
+        //}
 
         [HttpGet]
         [Route("api/recipes/getRecipesToAccept")]
@@ -224,12 +237,20 @@ namespace WhatToEat.ApiControllers
         }
 
         [HttpGet]
-        [Route("api/recipes/getMyRecipes")]
+        [Authorize]
+        [Route("api/user/recipes")]
         public async Task<IHttpActionResult> GetMyRecipes()
         {
             var list = await _recipesService.GetMyRecipes();
 
-            return Ok(list);
+            return Ok(list.Select(x => new GetRecipesByProductsModel()
+            {
+                id = x.Id,
+                title = x.Name,
+                image = x.Images.Count > 0 ? Url.Content(x.Images.FirstOrDefault()?.Path) : ""
+            }));
+
+            //return Ok(list);
         }
 
     }
