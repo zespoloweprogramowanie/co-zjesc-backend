@@ -33,29 +33,6 @@ namespace WhatToEat.ApiControllers
         public async Task<IHttpActionResult> GetRecipes(int? category = null, string search = "")
         {
 
-
-            //var list = await _recipesService.ListAsync();
-            //var recipes = list.Select(x =>
-            //    new
-            //    {
-            //        id = x.Id,
-            //        products = x.Products.Select(y => y.Id).ToList(),
-            //        images = x.Images.Select(y => y.Path).ToList(),
-            //        title = x.Name,
-            //        description = x.Description,
-            //        difficulty = x.Difficulty,
-            //        timeToPrepare = x.TimeToPrepare,
-            //        tags = x.Tags.Select(y => y.Name).ToList(),
-            //        estimatedCost = x.EstimatedCost,
-            //        portionCount = x.PortionCount
-
-            //    });
-
-            //if (recipes == null)
-            //{
-            //    return NotFound();
-            //}
-
             IEnumerable<Recipe> recipes = new List<Recipe>();
 
             if (!string.IsNullOrEmpty(search))
