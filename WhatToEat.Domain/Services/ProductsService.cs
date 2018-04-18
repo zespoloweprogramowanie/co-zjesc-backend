@@ -13,6 +13,7 @@ using WhatToEat.Core;
 using WhatToEat.Core.Helpers;
 using WhatToEat.Domain.Exceptions;
 using WhatToEat.Domain.Models;
+using WhatToEat.Domain.Models.DTO;
 
 namespace WhatToEat.Domain.Services
 {
@@ -29,18 +30,21 @@ namespace WhatToEat.Domain.Services
         List<RecipeTag> GetTags();
 
         Task<Product> GetOrCreateProductByNameAsync(string name);
+        Task<ICollection<RecipeProduct>> ImportProductsAsync(List<RecipeImport.Product> commandProducts);
     }
 
     public class ProductsService : EntityService<Product>, IProductsService
     {
         private ILogger _logger;
         private new readonly IContext _db;
+        private IUnitsService _unitsService;
 
         public ProductsService(IContext context) : base(context)
         {
             _db = context;
             _dbset = _db.Set<Product>();
             _logger = new DbLogger(new AppDb());
+            _unitsService = new UnitsService(new AppDb());
         }
 
         public async Task<Product> CreateProductAsync(Product product, HttpPostedFileBase image)
@@ -93,9 +97,9 @@ namespace WhatToEat.Domain.Services
             var products = from p in _db.Products
                            select new ProductDTO()
                            {
-                               id = p.Id,
-                               name = p.Name,
-                               image = p.Image
+                               Id = p.Id,
+                               Name = p.Name,
+                               Image = p.Image
                            };
             return products;
         }
@@ -189,7 +193,7 @@ namespace WhatToEat.Domain.Services
         public async Task<Product> GetOrCreateProductByNameAsync(string name)
         {
             var product = await _dbset
-                .FirstOrDefaultAsync(x => x.Name == name);
+                .FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
 
             if (product != null)
                 return product;
@@ -200,6 +204,27 @@ namespace WhatToEat.Domain.Services
             });
 
             return product;
+        }
+        
+
+
+        public async Task<ICollection<RecipeProduct>> ImportProductsAsync(List<RecipeImport.Product> importProducts)
+        {
+            List<RecipeProduct> importedProducts = new List<RecipeProduct>();
+
+            foreach (var importProduct in importProducts)
+            {
+                var product = await GetOrCreateProductByNameAsync(importProduct.Name);
+                var unit = await _unitsService.GetOrCreateUnitByNameAsync(importProduct.Unit);
+
+                RecipeProduct recipeProduct = new RecipeProduct();
+                recipeProduct.NumberOfUnit = importProduct.Amount;
+                recipeProduct.ProductId = product.Id;
+                recipeProduct.UnitId = unit.Id;
+                importedProducts.Add(recipeProduct);
+            }
+
+            return importedProducts;
         }
     }
 }

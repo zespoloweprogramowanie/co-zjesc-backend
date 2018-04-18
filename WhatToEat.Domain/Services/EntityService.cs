@@ -32,7 +32,7 @@ namespace WhatToEat.Domain.Services
             _dbset.Add(obj);
             _db.SaveChanges();
 
-            _log.Info($"Dodano rekord {obj.GetType()}");
+            //_log.Info($"Dodano rekord {obj.GetType()}");
 
             return obj;
         }

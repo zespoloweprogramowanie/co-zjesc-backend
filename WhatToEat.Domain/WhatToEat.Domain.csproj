@@ -70,8 +70,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\Recipe\CreateCommand.cs" />
+    <Compile Include="Commands\Recipe\ImportRecipeCommand.cs" />
     <Compile Include="DbLogger.cs" />
     <Compile Include="Exceptions\ServiceException.cs" />
+    <Compile Include="Helpers\Log.cs" />
+    <Compile Include="Helpers\UserHelper.cs" />
     <Compile Include="Migrations\201801241758120_0.cs" />
     <Compile Include="Migrations\201801241758120_0.Designer.cs">
       <DependentUpon>201801241758120_0.cs</DependentUpon>
@@ -96,11 +99,23 @@
     <Compile Include="Migrations\201803022212457_5.Designer.cs">
       <DependentUpon>201803022212457_5.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201804152043305_6.cs" />
+    <Compile Include="Migrations\201804152043305_6.Designer.cs">
+      <DependentUpon>201804152043305_6.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201804181253274_7.cs" />
+    <Compile Include="Migrations\201804181253274_7.Designer.cs">
+      <DependentUpon>201804181253274_7.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201804181403364_8.cs" />
+    <Compile Include="Migrations\201804181403364_8.Designer.cs">
+      <DependentUpon>201804181403364_8.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\DbContext.cs" />
+    <Compile Include="Models\DTO\RecipeImport.cs" />
     <Compile Include="Models\Log.cs" />
     <Compile Include="Models\Product.cs" />
-    <Compile Include="Models\Rate.cs" />
     <Compile Include="Models\Recipe.cs" />
     <Compile Include="Models\RecipeCategory.cs" />
     <Compile Include="Models\RecipeComment.cs" />
@@ -120,6 +135,7 @@
     <Compile Include="Services\IService.cs" />
     <Compile Include="Services\LogsService.cs" />
     <Compile Include="Services\RecipeCategoriesService.cs" />
+    <Compile Include="Services\TagsService.cs" />
     <Compile Include="Services\UnitsService.cs" />
     <Compile Include="Services\RecipesService.cs" />
     <Compile Include="Services\ProductsService.cs" />
@@ -146,6 +162,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201803022212457_5.resx">
       <DependentUpon>201803022212457_5.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201804152043305_6.resx">
+      <DependentUpon>201804152043305_6.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201804181253274_7.resx">
+      <DependentUpon>201804181253274_7.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201804181403364_8.resx">
+      <DependentUpon>201804181403364_8.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

@@ -9,41 +9,45 @@ namespace WhatToEat.Domain.Commands.Recipe
 
     public class CreateCommand
     {
-        public string title { get; set; }
-        public List<string> images { get; set; }
-        public List<Product> products { get; set; }
-        public string description { get; set; }
-        public int difficulty { get; set; }
-        public int estimatedCost { get; set; }
-        public int portionCount { get; set; }
-        public int timeToPrepare { get; set; }
+        public string Title { get; set; }
+        public List<string> Images { get; set; }
+        public List<string> Tags { get; set; }
+        public List<Product> Products { get; set; }
+        public string Description { get; set; }
+        public int Difficulty { get; set; }
+        public int EstimatedCost { get; set; }
+        public int PortionCount { get; set; }
+        public int TimeToPrepare { get; set; }
+        public int Category { get; set; }
 
         public class Product
         {
-            public string name { get; set; }
-            public int unit { get; set; }
-            public double amount { get; set; }
+            public string Name { get; set; }
+            public int Unit { get; set; }
+            public double Amount { get; set; }
         }
 
     }
 
     public class UpdateCommand
     {
-        public int id { get; set; }
-        public string title { get; set; }
-        public List<string> images { get; set; }
-        public List<Product> products { get; set; }
-        public string description { get; set; }
-        public int difficulty { get; set; }
-        public int estimatedCost { get; set; }
-        public int portionCount { get; set; }
-        public int timeToPrepare { get; set; }
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public List<string> Images { get; set; }
+        public List<string> Tags { get; set; }
+        public List<Product> Products { get; set; }
+        public string Description { get; set; }
+        public int Difficulty { get; set; }
+        public int EstimatedCost { get; set; }
+        public int PortionCount { get; set; }
+        public int TimeToPrepare { get; set; }
+        public int Category { get; set; }
 
         public class Product
         {
-            public string name { get; set; }
-            public int unit { get; set; }
-            public double amount { get; set; }
+            public string Name { get; set; }
+            public int Unit { get; set; }
+            public double Amount { get; set; }
         }
 
     }

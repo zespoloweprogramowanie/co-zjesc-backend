@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Owin.Security.OAuth;
 using WhatToEat.Domain.Models;
 using WhatToEat.Domain.Repositories;
+using WhatToEat.Domain.Services;
 
 namespace WhatToEat.Domain.Providers
 {
@@ -22,19 +23,24 @@ namespace WhatToEat.Domain.Providers
 
             var db = new AppDb();
 
-            using (AuthRepository _repo = new AuthRepository())
+            var identity = new ClaimsIdentity(context.Options.AuthenticationType);
+
+            using (AuthRepository repo = new AuthRepository())
             {
-                User user = await _repo.FindUser(context.UserName, context.Password);
+                User user = await repo.FindUser(context.UserName, context.Password);
 
                 if (user == null)
                 {
+                    
                     context.SetError("invalid_grant", "The user name or password is incorrect.");
+                    Helpers.Log.Error("The user name or password is incorrect.");
                     return;
                 }
+
+                identity.AddClaim(new Claim("sub", context.UserName));
+                identity.AddClaim(new Claim("id", user.Id));
             }
 
-            var identity = new ClaimsIdentity(context.Options.AuthenticationType);
-            identity.AddClaim(new Claim("sub", context.UserName));
 
             var userRole = db.Users.Include(x => x.Roles)
                 .FirstOrDefault(x => x.UserName == context.UserName)
@@ -47,7 +53,6 @@ namespace WhatToEat.Domain.Providers
                 if (role != null)
                 {
                     identity.AddClaim(new Claim("role", role.Name));
-                    identity.AddClaim(new Claim("id", userRole.UserId));
                 }
             }
 

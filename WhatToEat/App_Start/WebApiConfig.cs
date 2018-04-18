@@ -1,5 +1,6 @@
 ﻿using System.Web.Http;
 using System.Web.Http.Cors;
+using Newtonsoft.Json.Serialization;
 
 namespace WhatToEat
 {
@@ -18,9 +19,12 @@ namespace WhatToEat
                 defaults: new { id = RouteParameter.Optional }
             );
 
-            config.Formatters.Remove(config.Formatters.XmlFormatter);
             var json = GlobalConfiguration.Configuration.Formatters.JsonFormatter;
             json.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+
+            config.Formatters.Remove(config.Formatters.XmlFormatter);
+            config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            config.Formatters.JsonFormatter.UseDataContractJsonSerializer = false;
 
             var cors = new EnableCorsAttribute("*", "*", "*");
             config.EnableCors(cors);

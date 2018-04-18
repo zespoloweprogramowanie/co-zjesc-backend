@@ -48,11 +48,13 @@ namespace WhatToEat.Domain.Models
         [ForeignKey("AuthorId")]
         public User Author { get; set; }
 
-        public int? AverageGrade { get; set; }  //średnia ocen
+        public DateTime CreatedDate { get; set; }
 
-        public int? AverageVote { get; set; }   //średnia głosów
+        public double AverageRate { get; set; } //średnia ocen
 
-        public virtual ICollection<RecipeRate> Rate { get; set; }
+        //public int? AverageVote { get; set; }   //średnia głosów
+
+        public virtual ICollection<RecipeRate> Rates { get; set; }
 
         public virtual ICollection<RecipeProduct> Products { get; set; }
 
@@ -69,55 +71,75 @@ namespace WhatToEat.Domain.Models
 
     public class UploadRecipeImagesResult
     {
-        public string relativeUrl { get; set; }
-        public string absoluteUrl { get; set; }
+        public string RelativeUrl { get; set; }
+        public string AbsoluteUrl { get; set; }
     }
 
-    public class GetRecipeDTO
+    public class GetRecipeDto
     {
-        public int id { get; set; }
+        public int Id { get; set; }
 
-        public List<GetRecipeDTOProduct> products { get; set; }
+        public List<GetRecipeDtoProduct> Products { get; set; }
 
-        public List<UploadRecipeImagesResult> images { get; set; }
+        public List<UploadRecipeImagesResult> Images { get; set; }
 
-        public string title { get; set; }
+        public string Title { get; set; }
 
-        public string description { get; set; }
+        public string Description { get; set; }
 
-        public int? difficulty { get; set; }
+        public int? Difficulty { get; set; }
 
-        public int? timeToPrepare { get; set; }
+        public int? TimeToPrepare { get; set; }
 
-        public List<GetRecipeDTOTag> tags { get; set; }
+        public List<GetRecipeDtoTag> Tags { get; set; }
 
-        public double? estimatedCost { get; set; }
+        public double? EstimatedCost { get; set; }
 
-        public int? portionCount { get; set; }
+        public int? PortionCount { get; set; }
+
+        public CategoryDto Category { get; set; }
+
+        public double AverageRate { get; set; }
+
+        public class CategoryDto
+        {
+            public CategoryDto(RecipeCategory category)
+            {
+                if (category != null)
+                {
+                    Id = category.Id;
+                    Name = category.Name;
+                }
+            }
+
+            public int Id { get; set; }
+
+            public String Name { get; set; }
+        }
     }
 
-    public class GetRecipeDTOProduct
+    public class GetRecipeDtoProduct
     {
-        public int id { get; set; }
+        public int Id { get; set; }
 
-        public string name { get; set; }
+        public string Name { get; set; }
 
-        public GetRecipeDTOUnit unit { get; set; }
+        public GetRecipeDtoUnit Unit { get; set; }
 
-        public double amount { get; set; }
+        public double Amount { get; set; }
     }
 
-    public class GetRecipeDTOUnit
+    public class GetRecipeDtoUnit
     {
-        public int id { get; set; }
+        public int Id { get; set; }
 
-        public string label { get; set; }
+        public string Label { get; set; }
     }
 
-    public class GetRecipeDTOTag
+    public class GetRecipeDtoTag
     {
-        public int id { get; set; }
+        public int Id { get; set; }
 
-        public string name { get; set; }
+        public string Name { get; set; }
     }
 }

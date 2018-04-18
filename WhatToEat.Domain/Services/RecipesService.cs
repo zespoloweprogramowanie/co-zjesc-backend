@@ -13,7 +13,9 @@ using WhatToEat.Core.Extensions;
 using WhatToEat.Core.Helpers;
 using WhatToEat.Domain.Commands.Recipe;
 using WhatToEat.Domain.Exceptions;
+using WhatToEat.Domain.Helpers;
 using WhatToEat.Domain.Models;
+using WhatToEat.Domain.Models.DTO;
 
 namespace WhatToEat.Domain.Services
 {
@@ -29,6 +31,11 @@ namespace WhatToEat.Domain.Services
         Task<IEnumerable<Recipe>> GetRecipesToAccept();
         Task<IEnumerable<Recipe>> GetRecipesByFilters(int? categoryId);
         Task<IEnumerable<Recipe>> GetMyRecipes();
+        Task<IEnumerable<Recipe>> GetNewestRecipesAsync(int count = 15);
+        Task<IEnumerable<Recipe>> GetRecipesByCategoryAsync(int categoryId);
+        Task RateRecipeAsync(int id, int rate);
+        Task<int> GetRandomRecipeIdAsync();
+        Task<Recipe> ImportRecipeAsync(RecipeImport recipe);
     }
 
     public class RecipesService : EntityService<Recipe>, IRecipesService
@@ -37,6 +44,8 @@ namespace WhatToEat.Domain.Services
         private new readonly IContext _db;
 
         private readonly IProductsService _productsService;
+        private readonly ITagsService _tagsService;
+        private readonly IRecipeCategoriesService _categoriesService;
 
         public RecipesService(IContext context) : base(context)
         {
@@ -44,6 +53,8 @@ namespace WhatToEat.Domain.Services
             _dbset = _db.Set<Recipe>();
             _logger = new DbLogger(new AppDb());
             _productsService = new ProductsService(new AppDb());
+            _tagsService = new TagsService(new AppDb());
+            _categoriesService = new RecipeCategoriesService(new AppDb());
         }
 
         public async Task<IEnumerable<Recipe>> GetRecipesByFilters(int? categoryId)
@@ -54,7 +65,7 @@ namespace WhatToEat.Domain.Services
             return list;
         }
 
-    public List<string> UploadRecipeImages(IEnumerable<HttpPostedFile> files)
+        public List<string> UploadRecipeImages(IEnumerable<HttpPostedFile> files)
         {
             string directoryGuid = Guid.NewGuid().ToString();
             string directoryRelativePath = $@"~/Content/Images/Recipes/{directoryGuid}";
@@ -88,6 +99,7 @@ namespace WhatToEat.Domain.Services
                 .Include("Products.Unit")
                 .Include(x => x.Images)
                 .Include(x => x.Tags)
+                .Include(x => x.Category)
                 .FirstOrDefaultAsync(x => x.Id == recipeId);
         }
 
@@ -109,32 +121,54 @@ namespace WhatToEat.Domain.Services
 
             List<RecipeProduct> recipeProducts = new List<RecipeProduct>();
 
-            foreach (var product in command.products)
+            foreach (var product in command.Products)
             {
-                var properProduct = await _productsService.GetOrCreateProductByNameAsync(product.name);
+                var properProduct = await _productsService.GetOrCreateProductByNameAsync(product.Name);
 
                 RecipeProduct recipeProduct = new RecipeProduct();
-                recipeProduct.NumberOfUnit = product.amount;
+                recipeProduct.NumberOfUnit = product.Amount;
                 recipeProduct.ProductId = properProduct.Id;
-                recipeProduct.UnitId = product.unit;
+                recipeProduct.UnitId = product.Unit;
 
                 recipeProducts.Add(recipeProduct);
             }
 
+            //List<RecipeTag> tags = new List<RecipeTag>();
+
+            //foreach (var tag in command.Tags)
+            //{
+            //    var properTag = await _tagsService.GetOrCreateTagAsync(tag);
+            //    tags.Add(properTag);
+            //}
+
+
+
+
+            string userId = ClaimsPrincipal.Current.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
+
+            if (String.IsNullOrEmpty(userId))
+                throw new ServiceException("Nieuatoryzowana próba dodania przepisu!");
 
             var recipe = new Recipe()
             {
-                Name = command.title,
-                Description = command.description,
-                Difficulty = command.difficulty,
-                TimeToPrepare = command.timeToPrepare,
-                EstimatedCost = command.estimatedCost,
-                PortionCount = command.portionCount,
-                Images = command.images.Select(x => new RecipeImage()
+                Name = command.Title,
+                Description = command.Description,
+                Difficulty = command.Difficulty,
+                TimeToPrepare = command.TimeToPrepare,
+                EstimatedCost = command.EstimatedCost,
+                PortionCount = command.PortionCount,
+                Images = command.Images.Select(x => new RecipeImage
                 {
                     Path = x
                 }).ToList(),
-                Products = recipeProducts
+                Products = recipeProducts,
+                CreatedDate = DateTime.Now,
+                AuthorId = userId,
+                CategoryId = command.Category,
+                Tags = command.Tags.Select(x => new RecipeTag
+                {
+                    Name = x
+                }).ToList()
             };
 
 
@@ -145,40 +179,41 @@ namespace WhatToEat.Domain.Services
 
         public async Task<Recipe> UpdateRecipeAsync(UpdateCommand command)
         {
-            var current = await _dbset.FindAsync(command.id);
+            var current = await _dbset.FindAsync(command.Id);
 
 
 
             List<RecipeProduct> recipeProducts = new List<RecipeProduct>();
 
-            foreach (var product in command.products)
+            foreach (var product in command.Products)
             {
-                var properProduct = await _productsService.GetOrCreateProductByNameAsync(product.name);
-                if (properProduct.Id <= 0)
-                {
-                    RecipeProduct recipeProduct = new RecipeProduct();
-                    recipeProduct.NumberOfUnit = product.amount;
-                    recipeProduct.ProductId = properProduct.Id;
-                    recipeProduct.UnitId = product.unit;
+                var properProduct = await _productsService.GetOrCreateProductByNameAsync(product.Name);
 
-                    recipeProducts.Add(recipeProduct);
+                RecipeProduct recipeProduct = new RecipeProduct();
+                recipeProduct.NumberOfUnit = product.Amount;
+                recipeProduct.ProductId = properProduct.Id;
+                recipeProduct.UnitId = product.Unit;
 
-                }
+                recipeProducts.Add(recipeProduct);
             }
 
 
-            current.Name = command.title;
-            current.Description = command.description;
-            current.Difficulty = command.difficulty;
-            current.TimeToPrepare = command.timeToPrepare;
-            current.EstimatedCost = command.estimatedCost;
-            current.PortionCount = command.portionCount;
-            current.Images = command.images.Select(x => new RecipeImage()
+            current.Name = command.Title;
+            current.Description = command.Description;
+            current.Difficulty = command.Difficulty;
+            current.TimeToPrepare = command.TimeToPrepare;
+            current.EstimatedCost = command.EstimatedCost;
+            current.PortionCount = command.PortionCount;
+            current.Images = command.Images.Select(x => new RecipeImage()
             {
                 Path = x
             }).ToList();
             current.Products = recipeProducts;
-
+            current.CategoryId = command.Category;
+            current.Tags = command.Tags.Select(x => new RecipeTag
+            {
+                Name = x
+            }).ToList();
 
 
             var updatedRecipe = await UpdateAsync(current);
@@ -196,7 +231,7 @@ namespace WhatToEat.Domain.Services
                 .Where(x => x.Name.Contains(title)).ToListAsync();
 
             return list;
-       }
+        }
 
         public async Task<IEnumerable<Recipe>> GetRecipesToAccept()
         {
@@ -207,7 +242,7 @@ namespace WhatToEat.Domain.Services
 
         public async Task<IEnumerable<Recipe>> GetMyRecipes()
         {
-            string userId = ClaimsPrincipal.Current.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
+            string userId = UserHelper.GetCurrentUserId();//ClaimsPrincipal.Current.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
 
             var list = await _dbset
                 .Include(x => x.Products)
@@ -218,6 +253,107 @@ namespace WhatToEat.Domain.Services
                 .Where(x => x.AuthorId == userId).ToListAsync();
 
             return list;
+        }
+
+        public async Task<IEnumerable<Recipe>> GetNewestRecipesAsync(int count = 15)
+        {
+            var query = _dbset
+                .OrderByDescending(x => x.CreatedDate)
+                .Take(count);
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Recipe>> GetRecipesByCategoryAsync(int categoryId)
+        {
+            var query = from r in _dbset
+                        where r.CategoryId == categoryId
+                        select r;
+
+            return await query.ToListAsync();
+        }
+
+        public async Task RateRecipeAsync(int id, int rate)
+        {
+            var recipe = await _dbset
+                .Include(x => x.Rates)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (recipe == null)
+                throw new ServiceException("Brak podanego przepisu!");
+
+            string userId = UserHelper.GetCurrentUserId();
+
+            if (String.IsNullOrEmpty(userId))
+                throw new ServiceException("Niezalogowani użytkownicy nie mogą oceniać przepisów!");
+
+            if (recipe.Rates.Count(x => x.RecipeId == id && x.UserId == userId) > 0)
+                throw new ServiceException("Podany użytkownik ocenił już ten przepis!");
+
+            recipe.Rates.Add(new RecipeRate()
+            {
+                UserId = userId,
+                RecipeId = id,
+                Rate = rate
+            });
+
+            recipe.AverageRate = (recipe.AverageRate + rate) / recipe.Rates.Count; //CalculateAverageRate(recipe);
+
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task<int> GetRandomRecipeIdAsync()
+        {
+            var ids = await _dbset.Select(x => x.Id).ToListAsync();
+
+            if (ids.Count == 0)
+                throw new ServiceException("Brak przepisów do losowania!");
+
+            Random r = new Random();
+            int randomId = ids[r.Next(ids.Count)];
+            return randomId;
+        }
+
+        public async Task<Recipe> ImportRecipeAsync(RecipeImport command)
+        {
+            string userId = UserHelper.GetCurrentUserId();
+
+            if (String.IsNullOrEmpty(userId))
+                throw new ServiceException("Nieuatoryzowana próba dodania przepisu!");
+
+            var category = await _categoriesService.ImportCategoryAsync(command.Category);
+
+            var recipe = new Recipe()
+            {
+                Name = command.Title,
+                Description = command.Description,
+                Difficulty = command.Difficulty,
+                TimeToPrepare = command.TimeToPrepare,
+                EstimatedCost = command.EstimatedCost,
+                PortionCount = command.PortionCount,
+                Images = command.Images.Select(x => new RecipeImage()
+                {
+                    Path = x
+                }).ToList(),
+                Products = await _productsService.ImportProductsAsync(command.Products),
+                CreatedDate = DateTime.Now,
+                AuthorId = userId,
+                CategoryId = category.Id,
+                Tags = command.Tags.Select(x => new RecipeTag()
+                {
+                    Name = x
+                }).ToList(),  //await _tagsService.ImportTagsAsync(command.Tags),
+                AverageRate = command.AverageRate
+            };
+
+            return await CreateAsync(recipe);
+        }
+
+        private static double CalculateAverageRate(Recipe recipe)
+        {
+            double avgRate = recipe.Rates.Aggregate<RecipeRate, double>(0, (current, rate) => current + rate.Rate);
+            avgRate /= recipe.Rates.Count;
+            return avgRate;
         }
     }
 }

@@ -13,9 +13,11 @@ namespace WhatToEat.Domain.Models
 
         public Recipe Recipe { get; set; }
 
-        [ForeignKey("Rate")]
-        public int RateId { get; set; }
+        public string UserId { get; set; }
 
-        public Rate Rate { get; set; }
+        [ForeignKey("UserId")]
+        public User User { get; set; }
+
+        public int Rate  { get; set; }
     }
 }

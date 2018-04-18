@@ -18,7 +18,7 @@ namespace WhatToEat.Domain.Services
 {
     public interface IRecipeCategoriesService : IEntityService<RecipeCategory>
     {
-
+        Task<RecipeCategory> ImportCategoryAsync(string commandCategory);
     }
 
     public class RecipeCategoriesService : EntityService<RecipeCategory>, IRecipeCategoriesService
@@ -31,6 +31,28 @@ namespace WhatToEat.Domain.Services
             _db = context;
             _dbset = _db.Set<RecipeCategory>();
             _logger = new DbLogger(new AppDb());
+        }
+
+        public async Task<RecipeCategory> ImportCategoryAsync(string name)
+        {
+            return await GetOrCreateCategoryByNameAsync(name);
+        }
+
+
+        public async Task<RecipeCategory> GetOrCreateCategoryByNameAsync(string name)
+        {
+            var category = await _dbset
+                .FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
+
+            if (category != null)
+                return category;
+
+            category = await CreateAsync(new RecipeCategory()
+            {
+                Name = name
+            });
+
+            return category;
         }
     }
 }
