@@ -71,6 +71,7 @@ namespace WhatToEat.Domain.Models
 
     public class UploadRecipeImagesResult
     {
+        public int Id { get; set; }
         public string RelativeUrl { get; set; }
         public string AbsoluteUrl { get; set; }
     }
@@ -100,6 +101,8 @@ namespace WhatToEat.Domain.Models
         public CategoryDto Category { get; set; }
 
         public double AverageRate { get; set; }
+
+        public bool? isInFavorites { get; set; }
 
         public class CategoryDto
         {

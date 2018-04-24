@@ -36,6 +36,8 @@ namespace WhatToEat.Domain.Services
         Task RateRecipeAsync(int id, int rate);
         Task<int> GetRandomRecipeIdAsync();
         Task<Recipe> ImportRecipeAsync(RecipeImport recipe);
+        Task<int> AddRecipeToFavorite(int id);
+        Task<int> RemoveRecipeFromFavorite(int id);
     }
 
     public class RecipesService : EntityService<Recipe>, IRecipesService
@@ -100,6 +102,7 @@ namespace WhatToEat.Domain.Services
                 .Include(x => x.Images)
                 .Include(x => x.Tags)
                 .Include(x => x.Category)
+                .Include(x => x.FavouriteRecipes)
                 .FirstOrDefaultAsync(x => x.Id == recipeId);
         }
 
@@ -179,11 +182,9 @@ namespace WhatToEat.Domain.Services
 
         public async Task<Recipe> UpdateRecipeAsync(UpdateCommand command)
         {
-            var current = await _dbset.FindAsync(command.Id);
+            var current = await _dbset.FindAsync(command.Id);           
 
-
-
-            List<RecipeProduct> recipeProducts = new List<RecipeProduct>();
+            List<RecipeProduct> recipeProducts = await _db.RecipeProducts.Where(x => x.RecipeId == command.Id).ToListAsync();
 
             foreach (var product in command.Products)
             {
@@ -194,7 +195,7 @@ namespace WhatToEat.Domain.Services
                 recipeProduct.ProductId = properProduct.Id;
                 recipeProduct.UnitId = product.Unit;
 
-                recipeProducts.Add(recipeProduct);
+                //recipeProducts.Add(recipeProduct);
             }
 
 
@@ -216,8 +217,10 @@ namespace WhatToEat.Domain.Services
             }).ToList();
 
 
-            var updatedRecipe = await UpdateAsync(current);
-            return updatedRecipe;
+            //var updatedRecipe = await UpdateAsync(current);
+            //return updatedRecipe;
+
+            return null;
         }
 
         public async Task<IEnumerable<Recipe>> GetRecipesForTitle(string title)
@@ -355,5 +358,52 @@ namespace WhatToEat.Domain.Services
             avgRate /= recipe.Rates.Count;
             return avgRate;
         }
+
+        public async Task<int> AddRecipeToFavorite(int id)
+        {
+            string userId = UserHelper.GetCurrentUserId();
+            if (userId != null)
+            {
+
+                var favoriteRecipeUser = await _db.UserFavouriteRecipe.SingleOrDefaultAsync(x => x.UserId == userId && x.RecipeId == id);
+                if (favoriteRecipeUser == null)
+                {
+
+                    UserFavouriteRecipe favoriteRecipe = new UserFavouriteRecipe();
+                    favoriteRecipe.UserId = userId;
+                    favoriteRecipe.RecipeId = id;
+
+                    _db.UserFavouriteRecipe.Add(favoriteRecipe);
+                    await _db.SaveChangesAsync();
+
+                    return 1;
+                }
+
+                return 2;
+            }
+
+            return 3;
+        }
+
+        public async Task<int> RemoveRecipeFromFavorite(int id)
+        {
+            string userId = UserHelper.GetCurrentUserId();
+            if (userId != null)
+            {
+                var favoriteRecipeUser = await _db.UserFavouriteRecipe.SingleOrDefaultAsync(x => x.UserId == userId && x.RecipeId == id);
+                if (favoriteRecipeUser != null)
+                {
+                    _db.UserFavouriteRecipe.Remove(favoriteRecipeUser);
+                    await _db.SaveChangesAsync();
+
+                    return 1;
+                }
+
+                return 2;
+            }
+
+            return 3;
+        }
+
     }
 }

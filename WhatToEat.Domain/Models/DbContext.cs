@@ -17,6 +17,7 @@ namespace WhatToEat.Domain.Models
         IDbSet<RecipeCategory> RecipeCategories { get; set; }
         IDbSet<Log> Logs { get; set; }
         IDbSet<RecipeComment> RecipeComment { get; set; }
+        IDbSet<UserFavouriteRecipe> UserFavouriteRecipe { get; set; }
 
         DbSet<TEntity> Set<TEntity>() where TEntity : class;
         DbEntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
@@ -65,5 +66,6 @@ namespace WhatToEat.Domain.Models
         public IDbSet<RecipeCategory> RecipeCategories { get; set; }
         public IDbSet<Log> Logs { get; set; }
         public IDbSet<RecipeComment> RecipeComment { get; set; }
+        public IDbSet<UserFavouriteRecipe> UserFavouriteRecipe { get; set; }
     }
 }

@@ -20,9 +20,7 @@ using WhatToEat.Domain.Services;
 
 namespace WhatToEat.ApiControllers
 {
-
-
-
+    [Authorize]
     public class CompactRecipe
     {
         public CompactRecipe(Recipe recipe)
@@ -130,7 +128,7 @@ namespace WhatToEat.ApiControllers
                     Id = x.Id,
                     Products = x.Products.Select(y => new GetRecipeDtoProduct
                     {
-                        Id = y.ProductId,
+                        Id = y.Id,
                         Name = y.Product.Name,
                         Unit = new GetRecipeDtoUnit()
                         {
@@ -141,6 +139,7 @@ namespace WhatToEat.ApiControllers
                     }).ToList(),
                     Images = x.Images.Select(y => new UploadRecipeImagesResult()
                     {
+                        Id = y.Id,
                         RelativeUrl = y.Path,
                         AbsoluteUrl = Url.Content(y.Path ?? "~")
                     }).ToList(),
@@ -152,7 +151,8 @@ namespace WhatToEat.ApiControllers
                     EstimatedCost = x.EstimatedCost,
                     PortionCount = x.PortionCount,
                     Category = new GetRecipeDto.CategoryDto(x.Category),
-                    AverageRate = x.AverageRate
+                    AverageRate = x.AverageRate,
+                    isInFavorites = x.FavouriteRecipes.Count == 0 ? false : true
                 };
 
             //if (recipe == null)
@@ -331,6 +331,48 @@ namespace WhatToEat.ApiControllers
             }
 
             return Ok("Import poprawny.");
+        }
+
+        [HttpPost]
+        [Route("api/recipes/favorite/add")]
+        public async Task<IHttpActionResult> AddRecipeToFavorite(int id)
+        {
+            try
+            {
+                var result = await _recipesService.AddRecipeToFavorite(id);
+                if (result == 1)
+                    return Ok(true);
+                else if(result == 2)
+                    return Ok(false);
+                else
+                    return InternalServerError();
+            }
+            catch (Exception e)
+            {
+                return InternalServerError(e);
+            }
+
+        }
+
+        [HttpPost]
+        [Route("api/recipes/favorite/remove")]
+        public async Task<IHttpActionResult> RemoveRecipeFromFavorite(int id)
+        {
+            try
+            {
+                var result = await _recipesService.RemoveRecipeFromFavorite(id);
+                if (result == 1)
+                    return Ok(true);
+                else if (result == 2)
+                    return Ok(false);
+                else
+                    return InternalServerError();
+            }
+            catch (Exception e)
+            {
+                return InternalServerError(e);
+            }
+
         }
 
     }
