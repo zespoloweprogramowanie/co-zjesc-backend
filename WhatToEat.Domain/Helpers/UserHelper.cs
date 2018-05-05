@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using WhatToEat.Domain.Services;
 
 namespace WhatToEat.Domain.Helpers
 {
@@ -14,5 +15,7 @@ namespace WhatToEat.Domain.Helpers
             string userId = ClaimsPrincipal.Current.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
             return userId;
         }
+
+        public static bool IsUserLoggedIn() => !String.IsNullOrEmpty(GetCurrentUserId());
     }
 }

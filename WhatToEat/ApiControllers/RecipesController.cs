@@ -14,6 +14,7 @@ using System.Web.Http.Routing;
 using WhatToEat.Core.Extensions;
 using WhatToEat.Core.Helpers;
 using WhatToEat.Domain.Commands.Recipe;
+using WhatToEat.Domain.Helpers;
 using WhatToEat.Domain.Models;
 using WhatToEat.Domain.Models.DTO;
 using WhatToEat.Domain.Services;
@@ -152,7 +153,8 @@ namespace WhatToEat.ApiControllers
                     PortionCount = x.PortionCount,
                     Category = new GetRecipeDto.CategoryDto(x.Category),
                     AverageRate = x.AverageRate,
-                    isInFavorites = x.FavouriteRecipes.Count == 0 ? false : true
+                    CanVote = UserHelper.IsUserLoggedIn() && x.CanUserVote(UserHelper.GetCurrentUserId()),
+                    IsInFavorites = !UserHelper.IsUserLoggedIn() ? null : (bool?)x.IsUserFavourite(UserHelper.GetCurrentUserId())
                 };
 
             //if (recipe == null)

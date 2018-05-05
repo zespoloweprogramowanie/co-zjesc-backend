@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace WhatToEat.Domain.Models
 {
@@ -65,6 +66,10 @@ namespace WhatToEat.Domain.Models
         public virtual ICollection<RecipeComment> Comments { get; set; }
 
         public virtual ICollection<UserFavouriteRecipe> FavouriteRecipes { get; set; }
+
+        public bool CanUserVote(string userId) => Rates.All(x => x.UserId != userId);
+
+        public bool IsUserFavourite(string userId) => FavouriteRecipes.Any(x => x.UserId == userId);
     }
 
 
@@ -102,7 +107,9 @@ namespace WhatToEat.Domain.Models
 
         public double AverageRate { get; set; }
 
-        public bool? isInFavorites { get; set; }
+        public bool? IsInFavorites { get; set; }
+
+        public bool CanVote { get; set; }
 
         public class CategoryDto
         {
