@@ -116,6 +116,7 @@ namespace WhatToEat.ApiControllers
             return Json(list);
         }
 
+
         // GET: api/Recipes/5
         [ResponseType(typeof(Recipe))]
         public async Task<IHttpActionResult> GetRecipe(int id)
@@ -375,6 +376,21 @@ namespace WhatToEat.ApiControllers
                 return InternalServerError(e);
             }
 
+        }
+
+        [HttpGet]
+        [Route("api/recipes/favourites")]
+        [ResponseType(typeof(IEnumerable<CompactRecipe>))]
+        public async Task<IHttpActionResult> GetFavouriteRecipes()
+        {
+            var list = await _recipesService.GetUserFavouriteRecipesAsync();
+
+            // kiedy jest niezalogowany
+            if (list == null)
+                return null;
+
+
+            return Ok(list.Select(x => new CompactRecipe(x)));
         }
 
     }

@@ -33,9 +33,10 @@ namespace WhatToEat.Domain.Commands.Recipe
     {
         public int Id { get; set; }
         public string Title { get; set; }
-        public List<string> Images { get; set; }
+        //public List<string> Images { get; set; }
         public List<string> Tags { get; set; }
         public List<Product> Products { get; set; }
+        public List<Image> Images { get; set; }
         public string Description { get; set; }
         public int Difficulty { get; set; }
         public int EstimatedCost { get; set; }
@@ -43,8 +44,16 @@ namespace WhatToEat.Domain.Commands.Recipe
         public int TimeToPrepare { get; set; }
         public int Category { get; set; }
 
+
+        public class Image
+        {
+            public int? Id { get; set; }
+            public string Path { get; set; }
+        }
+
         public class Product
         {
+            public int? Id { get; set; }
             public string Name { get; set; }
             public int Unit { get; set; }
             public double Amount { get; set; }

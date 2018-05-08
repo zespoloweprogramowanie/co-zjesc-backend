@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Hosting;
+using Microsoft.Ajax.Utilities;
 using WhatToEat.Core;
 using WhatToEat.Core.Extensions;
 using WhatToEat.Core.Helpers;
@@ -38,6 +39,7 @@ namespace WhatToEat.Domain.Services
         Task<Recipe> ImportRecipeAsync(RecipeImport recipe);
         Task<int> AddRecipeToFavorite(int id);
         Task<int> RemoveRecipeFromFavorite(int id);
+        Task<IEnumerable<Recipe>> GetUserFavouriteRecipesAsync();
     }
 
     public class RecipesService : EntityService<Recipe>, IRecipesService
@@ -182,20 +184,80 @@ namespace WhatToEat.Domain.Services
 
         public async Task<Recipe> UpdateRecipeAsync(UpdateCommand command)
         {
-            var current = await _dbset.FindAsync(command.Id);           
+            var current = await _dbset.FindAsync(command.Id);
 
-            List<RecipeProduct> recipeProducts = await _db.RecipeProducts.Where(x => x.RecipeId == command.Id).ToListAsync();
 
-            foreach (var product in command.Products)
+            foreach (var updatedProduct in command.Products)
             {
-                var properProduct = await _productsService.GetOrCreateProductByNameAsync(product.Name);
+                var dbRecipeProduct = await _db.RecipeProducts.FindAsync(updatedProduct.Id);
+                if (dbRecipeProduct != null)
+                {
+                    int productId = dbRecipeProduct.ProductId;
+                    var dbProduct = await _db.Products.FindAsync(dbRecipeProduct.ProductId);
+                    if (dbProduct.Name != updatedProduct.Name)
+                    {
+                        var properProduct = await _productsService.GetOrCreateProductByNameAsync(updatedProduct.Name);
+                        productId = properProduct.Id;
+                    }
 
-                RecipeProduct recipeProduct = new RecipeProduct();
-                recipeProduct.NumberOfUnit = product.Amount;
-                recipeProduct.ProductId = properProduct.Id;
-                recipeProduct.UnitId = product.Unit;
+                    _db.Entry(dbRecipeProduct).CurrentValues.SetValues(new RecipeProduct
+                    {
+                        Id = dbRecipeProduct.Id,
+                        NumberOfUnit = updatedProduct.Amount,
+                        ProductId = productId,
+                        RecipeId = dbRecipeProduct.RecipeId,
+                        UnitId = updatedProduct.Unit
+                    });
+                }
+                else
+                {
+                    var properProduct = await _productsService.GetOrCreateProductByNameAsync(updatedProduct.Name);
 
-                //recipeProducts.Add(recipeProduct);
+                    RecipeProduct recipeProduct = new RecipeProduct
+                    {
+                        NumberOfUnit = updatedProduct.Amount,
+                        ProductId = properProduct.Id,
+                        UnitId = updatedProduct.Unit
+                    };
+                    current.Products.Add(recipeProduct);
+                }
+            }
+
+            foreach (var product in current.Products.ToList())
+            {
+                var detachedProduct = command.Products.Find(x => x.Id == product.Id);
+                if (detachedProduct == null && product.Id > 0)
+                {
+                    current.Products.Remove(product);
+                    _db.RecipeProducts.Remove(product);
+                }
+            }
+
+
+
+
+            foreach (var updatedImage in command.Images)
+            {
+                var dbRecipeImage = await _db.RecipeImages.FindAsync(updatedImage.Id);
+                if (dbRecipeImage != null)
+                    continue;
+
+                current.Images.Add(new RecipeImage
+                {
+                    Path = updatedImage.Path,
+                    RecipeId = command.Id
+                });
+            }
+
+
+            foreach (var image in current.Images.ToList())
+            {
+                var detachedImage = command.Images.Find(x => x.Id == image.Id);
+                if (detachedImage == null && image.Id > 0)
+                {
+                    current.Images.Remove(image);
+                    _db.RecipeImages.Remove(image);
+                }
             }
 
 
@@ -205,22 +267,80 @@ namespace WhatToEat.Domain.Services
             current.TimeToPrepare = command.TimeToPrepare;
             current.EstimatedCost = command.EstimatedCost;
             current.PortionCount = command.PortionCount;
-            current.Images = command.Images.Select(x => new RecipeImage()
-            {
-                Path = x
-            }).ToList();
-            current.Products = recipeProducts;
             current.CategoryId = command.Category;
+            //current.Images = command.Images.Select(x => new RecipeImage()
+            //{
+            //    Path = x.Path
+            //}).ToList();
+            // todo: tagi jak produkty
             current.Tags = command.Tags.Select(x => new RecipeTag
             {
                 Name = x
             }).ToList();
 
 
-            //var updatedRecipe = await UpdateAsync(current);
-            //return updatedRecipe;
 
-            return null;
+
+            var updatedRecipe = await UpdateAsync(current);
+            return updatedRecipe;
+
+
+            //List<RecipeProduct> recipeProducts = await _db.RecipeProducts.Where(x => x.RecipeId == command.Id).ToListAsync();
+
+            //foreach (var product in command.Products)
+            //{
+            //    var properProduct = await _productsService.GetOrCreateProductByNameAsync(product.Name);
+
+            //    RecipeProduct recipeProduct = new RecipeProduct();
+            //    recipeProduct.NumberOfUnit = product.Amount;
+            //    recipeProduct.ProductId = properProduct.Id;
+            //    recipeProduct.UnitId = product.Unit;
+
+            //    //recipeProducts.Add(recipeProduct);
+            //}
+
+            //current.Products = new List<RecipeProduct>();
+
+
+
+            //foreach (var product in command.Products)
+            //{
+            //    if (product.Id != null)
+            //    {
+            //        var productInDb = await _db.RecipeProducts.FirstOrDefaultAsync(x => x.Id == product.Id);
+
+            //        if (productInDb == null)
+            //            continue;
+
+            //        current.Products.Add(new RecipeProduct
+            //        {
+            //            Id = (int)product.Id,
+            //            NumberOfUnit = product.Amount,
+            //            ProductId = productInDb.ProductId,
+            //            RecipeId = productInDb.RecipeId,
+            //            UnitId = product.Unit
+            //        });
+            //    }
+            //    else
+            //    {
+            //        var properProduct = await _productsService.GetOrCreateProductByNameAsync(product.Name);
+
+            //        RecipeProduct recipeProduct = new RecipeProduct
+            //        {
+            //            NumberOfUnit = product.Amount,
+            //            ProductId = properProduct.Id,
+            //            UnitId = product.Unit
+            //        };
+
+            //        current.Products.Add(recipeProduct);
+            //    }
+            //}
+
+
+
+
+
+            //return null;
         }
 
         public async Task<IEnumerable<Recipe>> GetRecipesForTitle(string title)
@@ -405,5 +525,20 @@ namespace WhatToEat.Domain.Services
             return 3;
         }
 
+        public async Task<IEnumerable<Recipe>> GetUserFavouriteRecipesAsync()
+        {
+            string userId = UserHelper.GetCurrentUserId();
+
+            if (String.IsNullOrEmpty(userId))
+                return null;
+
+            var query = _dbset
+                .Include(x => x.Products)
+                .Include(x => x.Images)
+                .Include(x => x.Tags)
+                .Where(x => x.FavouriteRecipes.Any(y => y.UserId == userId));
+
+            return await query.ToListAsync();
+        }
     }
 }
