@@ -34,7 +34,7 @@ namespace WhatToEat.Domain.Services
         Task<IEnumerable<Recipe>> GetMyRecipes();
         Task<IEnumerable<Recipe>> GetNewestRecipesAsync(int count = 15);
         Task<IEnumerable<Recipe>> GetRecipesByCategoryAsync(int categoryId);
-        Task RateRecipeAsync(int id, int rate);
+        Task<double> RateRecipeAsync(int id, int rate);
         Task<int> GetRandomRecipeIdAsync();
         Task<Recipe> ImportRecipeAsync(RecipeImport recipe);
         Task<int> AddRecipeToFavorite(int id);
@@ -444,7 +444,7 @@ namespace WhatToEat.Domain.Services
             return await query.ToListAsync();
         }
 
-        public async Task RateRecipeAsync(int id, int rate)
+        public async Task<double> RateRecipeAsync(int id, int rate)
         {
             var recipe = await _dbset
                 .Include(x => x.Rates)
@@ -471,6 +471,7 @@ namespace WhatToEat.Domain.Services
             recipe.AverageRate = (recipe.AverageRate + rate) / recipe.Rates.Count; //CalculateAverageRate(recipe);
 
             await _db.SaveChangesAsync();
+            return recipe.AverageRate;
         }
 
         public async Task<int> GetRandomRecipeIdAsync()

@@ -294,14 +294,13 @@ namespace WhatToEat.ApiControllers
         {
             try
             {
-                await _recipesService.RateRecipeAsync(id, rate);
-
+                double avgRate = await _recipesService.RateRecipeAsync(id, rate);
+                return Ok(avgRate);
             }
             catch (Exception exception)
             {
                 return InternalServerError(exception);
             }
-            return Ok();
         }
 
         [HttpGet]
