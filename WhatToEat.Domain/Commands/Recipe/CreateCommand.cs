@@ -48,12 +48,12 @@ namespace WhatToEat.Domain.Commands.Recipe
         public class Image
         {
             public int? Id { get; set; }
-            public string Path { get; set; }
+            public string RelativeUrl { get; set; }
         }
 
         public class Product
         {
-            public int? Id { get; set; }
+            //public int? Id { get; set; }
             public string Name { get; set; }
             public int Unit { get; set; }
             public double Amount { get; set; }

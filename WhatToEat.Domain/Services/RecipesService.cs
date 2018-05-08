@@ -184,13 +184,21 @@ namespace WhatToEat.Domain.Services
 
         public async Task<Recipe> UpdateRecipeAsync(UpdateCommand command)
         {
-            var current = await _dbset.FindAsync(command.Id);
+            var current = await _dbset
+                .Include(x => x.Images)
+                .Include(x => x.Products)
+                .Include("Products.Product")
+                .Include(x => x.Tags)
+                .FirstOrDefaultAsync(x => x.Id == command.Id);
 
+            if (current == null)
+                throw new NullReferenceException("Przepis nie istnieje!");
 
+            // produkty
             foreach (var updatedProduct in command.Products)
             {
-                var dbRecipeProduct = await _db.RecipeProducts.FindAsync(updatedProduct.Id);
-                if (dbRecipeProduct != null)
+                var dbRecipeProduct = await _db.RecipeProducts.FirstOrDefaultAsync(x => x.Product.Name == updatedProduct.Name);
+                if (dbRecipeProduct != null)    
                 {
                     int productId = dbRecipeProduct.ProductId;
                     var dbProduct = await _db.Products.FindAsync(dbRecipeProduct.ProductId);
@@ -217,7 +225,11 @@ namespace WhatToEat.Domain.Services
                     {
                         NumberOfUnit = updatedProduct.Amount,
                         ProductId = properProduct.Id,
-                        UnitId = updatedProduct.Unit
+                        UnitId = updatedProduct.Unit,
+                        Product = new Models.Product()
+                        {
+                            Name = updatedProduct.Name
+                        }
                     };
                     current.Products.Add(recipeProduct);
                 }
@@ -225,7 +237,7 @@ namespace WhatToEat.Domain.Services
 
             foreach (var product in current.Products.ToList())
             {
-                var detachedProduct = command.Products.Find(x => x.Id == product.Id);
+                var detachedProduct = command.Products.FirstOrDefault(x => x.Name == product.Product.Name);
                 if (detachedProduct == null && product.Id > 0)
                 {
                     current.Products.Remove(product);
@@ -234,8 +246,7 @@ namespace WhatToEat.Domain.Services
             }
 
 
-
-
+            // obrazki
             foreach (var updatedImage in command.Images)
             {
                 var dbRecipeImage = await _db.RecipeImages.FindAsync(updatedImage.Id);
@@ -244,7 +255,7 @@ namespace WhatToEat.Domain.Services
 
                 current.Images.Add(new RecipeImage
                 {
-                    Path = updatedImage.Path,
+                    Path = updatedImage.RelativeUrl,
                     RecipeId = command.Id
                 });
             }
@@ -260,6 +271,48 @@ namespace WhatToEat.Domain.Services
                 }
             }
 
+            //tagi
+            // todo: tagi jak produkty
+
+            var tagsToRemove = new List<RecipeTag>();
+
+            foreach (var tag in current.Tags)
+            {
+                if (command.Tags.All(x => x.ToLower() != tag.Name.ToLower()))
+                    tagsToRemove.Add(tag);
+            }
+
+            foreach (var tag in tagsToRemove)
+                current.Tags.Remove(tag);
+
+
+            foreach (var tag in command.Tags)
+            {
+                bool exists = _db.RecipeTags.Any(x => x.Name.ToLower() == tag.ToLower());
+                if (!exists || current.Tags.All(x => x.Name.ToLower() != tag.ToLower()))
+                {
+                    //var properTag = await _tagsService.GetOrCreateTagAsync(tag);
+
+                    var properTag = await _db.RecipeTags
+                        .FirstOrDefaultAsync(x => x.Name.ToLower() == tag.ToLower());
+                    if (properTag == null)
+                    {
+
+                        properTag = await _tagsService.CreateAsync(new RecipeTag()
+                        {
+                            Name = tag
+                        });
+                    }
+                    current.Tags.Add(properTag);
+                }
+            }
+
+
+            //current.Tags = command.Tags.Select(x => new RecipeTag
+            //{
+            //    Name = x
+            //}).ToList();
+
 
             current.Name = command.Title;
             current.Description = command.Description;
@@ -272,11 +325,6 @@ namespace WhatToEat.Domain.Services
             //{
             //    Path = x.Path
             //}).ToList();
-            // todo: tagi jak produkty
-            current.Tags = command.Tags.Select(x => new RecipeTag
-            {
-                Name = x
-            }).ToList();
 
 
 

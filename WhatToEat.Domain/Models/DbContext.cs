@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.ModelConfiguration.Conventions;
@@ -22,7 +23,7 @@ namespace WhatToEat.Domain.Models
 
         DbSet<TEntity> Set<TEntity>() where TEntity : class;
         DbEntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
-
+        
         int SaveChanges();
         Task<int> SaveChangesAsync();
         void Dispose();
