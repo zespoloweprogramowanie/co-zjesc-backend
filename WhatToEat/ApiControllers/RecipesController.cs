@@ -122,8 +122,7 @@ namespace WhatToEat.ApiControllers
         public async Task<IHttpActionResult> GetRecipe(int id)
         {
             var x = await _recipesService.GetRecipeForPreviewAsync(id);
-
-            //Recipe recipe = db.Recipes.Find(id);
+            
             var recipe =
                 new GetRecipeDto()
                 {
@@ -158,11 +157,6 @@ namespace WhatToEat.ApiControllers
                     IsInFavorites = !UserHelper.IsUserLoggedIn() ? null : (bool?)x.IsUserFavourite(UserHelper.GetCurrentUserId())
                 };
 
-            //if (recipe == null)
-            //{
-            //    return NotFound();
-            //}
-
             return Ok(recipe);
         }
 
@@ -174,13 +168,6 @@ namespace WhatToEat.ApiControllers
         public async Task<IHttpActionResult> GetRecipesByProducts(List<int> productIds)
         {
             var recipes = await _recipesService.GetRecipesByProductsAsync(productIds);
-
-            //return Ok(recipes.Select(x => new CompactRecipe
-            //{
-            //    Id = x.Id,
-            //    Title = x.Name,
-            //    Image = x.Images.Count > 0 ? Url.Content(x.Images.FirstOrDefault()?.Path) : ""
-            //}));
             return Ok(recipes.Select(x => new CompactRecipe(x)));
         }
 
@@ -215,7 +202,6 @@ namespace WhatToEat.ApiControllers
 
             var createdRecipe = await _recipesService.CreateRecipeAsync(command);
             return Ok(createdRecipe.Id);
-            //return CreatedAtRoute("DefaultApi", new { id = createdRecipe.Id }, createdRecipe);
         }
 
         // DELETE: api/Recipes/5
@@ -258,16 +244,6 @@ namespace WhatToEat.ApiControllers
         public async Task<IHttpActionResult> GetMyRecipes()
         {
             var list = await _recipesService.GetMyRecipes();
-
-            //return Ok(list.Select(x => new CompactRecipe()
-            //{
-            //    Id = x.Id,
-            //    Title = x.Name,
-            //    Image = x.Images.Count > 0 ? Url.Content(x.Images.FirstOrDefault()?.Path) : ""
-            //}));
-
-            //return Ok(list);
-
             return Ok(list.Select(x => new CompactRecipe(x)));
         }
 
@@ -277,7 +253,7 @@ namespace WhatToEat.ApiControllers
         public async Task<IHttpActionResult> GetCarousels()
         {
 
-            List<Carousel> carousels =
+            var carousels =
                 new List<Carousel>
                 {
                     new Carousel("Najnowsze przepisy", await _recipesService.GetNewestRecipesAsync()),
@@ -378,7 +354,7 @@ namespace WhatToEat.ApiControllers
         }
 
         [HttpGet]
-        [Route("api/recipes/favourites")]
+        [Route("api/recipes/favorites")]
         [ResponseType(typeof(IEnumerable<CompactRecipe>))]
         public async Task<IHttpActionResult> GetFavouriteRecipes()
         {

@@ -19,6 +19,7 @@ namespace WhatToEat.Domain.Services
     public interface IUnitsService : IEntityService<Unit>
     {
         Task<Unit> GetOrCreateUnitByNameAsync(string unit);
+        Unit GetOrCreateUnitByName(string unit);
     }
 
     public class UnitsService : EntityService<Unit>, IUnitsService
@@ -49,6 +50,23 @@ namespace WhatToEat.Domain.Services
                 return unit;
 
             unit = await CreateAsync(new Unit()
+            {
+                Name = name
+            });
+
+            return unit;
+        }
+
+        public Unit GetOrCreateUnitByName(string name)
+        {
+
+            var unit = _dbset
+                .FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
+
+            if (unit != null)
+                return unit;
+
+            unit = Create(new Unit()
             {
                 Name = name
             });

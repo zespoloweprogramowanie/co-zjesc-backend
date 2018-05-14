@@ -50,6 +50,7 @@ namespace WhatToEat.Domain.Services
         private readonly IProductsService _productsService;
         private readonly ITagsService _tagsService;
         private readonly IRecipeCategoriesService _categoriesService;
+        private readonly IUnitsService _unitsService;
 
         public RecipesService(IContext context) : base(context)
         {
@@ -59,6 +60,7 @@ namespace WhatToEat.Domain.Services
             _productsService = new ProductsService(new AppDb());
             _tagsService = new TagsService(new AppDb());
             _categoriesService = new RecipeCategoriesService(new AppDb());
+            _unitsService = new UnitsService(new AppDb());
         }
 
         public async Task<IEnumerable<Recipe>> GetRecipesByFilters(int? categoryId)
@@ -198,7 +200,7 @@ namespace WhatToEat.Domain.Services
             foreach (var updatedProduct in command.Products)
             {
                 var dbRecipeProduct = await _db.RecipeProducts.FirstOrDefaultAsync(x => x.Product.Name == updatedProduct.Name);
-                if (dbRecipeProduct != null)    
+                if (dbRecipeProduct != null)
                 {
                     int productId = dbRecipeProduct.ProductId;
                     var dbProduct = await _db.Products.FindAsync(dbRecipeProduct.ProductId);
@@ -468,7 +470,7 @@ namespace WhatToEat.Domain.Services
                 Rate = rate
             });
 
-            recipe.AverageRate = (recipe.AverageRate + rate) / recipe.Rates.Count; //CalculateAverageRate(recipe);
+            recipe.AverageRate = CalculateAverageRate(recipe);//(recipe.AverageRate + rate) / recipe.Rates.Count; 
 
             await _db.SaveChangesAsync();
             return recipe.AverageRate;
@@ -493,7 +495,36 @@ namespace WhatToEat.Domain.Services
             if (String.IsNullOrEmpty(userId))
                 throw new ServiceException("Nieuatoryzowana próba dodania przepisu!");
 
+            var existing = await _dbset.FirstOrDefaultAsync(x => x.Name.ToLower() == command.Title.ToLower());
             var category = await _categoriesService.ImportCategoryAsync(command.Category);
+
+            if (existing != null)
+            {
+                return await UpdateRecipeAsync(new UpdateCommand()
+                {
+                    Id = existing.Id,
+                    Category = category.Id,
+                    Description = command.Description,
+                    Difficulty = command.Difficulty,
+                    EstimatedCost = command.EstimatedCost,
+                    PortionCount = command.PortionCount,
+                    Title = command.Title,
+                    TimeToPrepare = command.TimeToPrepare,
+                    Products = command.Products.Select(x => new UpdateCommand.Product()
+                    {
+                        Name = x.Name,
+                        Unit = _unitsService.GetOrCreateUnitByName(x.Unit).Id,
+                        Amount = x.Amount
+                    }).ToList(),
+                    Images = command.Images.Select(x => new UpdateCommand.Image()
+                    {
+                        Id = null,
+                        RelativeUrl = x
+                    }).ToList(),
+                    Tags = command.Tags
+                });
+            }
+
 
             var recipe = new Recipe()
             {
