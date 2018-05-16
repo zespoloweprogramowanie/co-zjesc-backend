@@ -116,6 +116,26 @@ namespace WhatToEat.Domain.Services
                 .Include(x => x.Products)
                 .Where(x => x.Products.Any(y => productIds.Any(z => z == y.ProductId)))
                 .ToListAsync();
+
+            //if (recipes.Count == 0) // jeśli żaden z przepisów nie zawiera składnika i lista przepisów jest pusta
+            //{
+            //    List<int> categoryIds = new List<int>();
+
+            //    foreach (var cat in _db.RecipeCategories.AsNoTracking().ToList())
+            //    {
+            //        categoryIds.Add(cat.Id);
+            //    }             
+
+            //    foreach (var item in _dbset.Where(x => categoryIds.Any(z => z == x.CategoryId)).GroupBy(x => x.CategoryId, x => x, (key, rec) => new { CatId = key, Recipe = rec.OrderByDescending(z => z.AverageRate) }))
+            //    {
+            //        foreach (var recip in item.Recipe.Take(2))
+            //        {
+            //            recipes.Add(recip); //wrzucamy po 2 przepisy z każdej kategorii z najwyższą średnią oceną
+            //        }
+            //    }                                  
+                    
+            //}
+
             return recipes;
         }
 
