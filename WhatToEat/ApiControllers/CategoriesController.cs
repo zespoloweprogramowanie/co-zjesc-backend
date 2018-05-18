@@ -26,6 +26,10 @@ namespace WhatToEat.ApiControllers
             public string name { get; set; }
         }
 
+        /// <summary>
+        /// Metoda zwracająca wszystkie kategorie.
+        /// </summary>
+        /// <returns>Zwaraca id i nazwę kategorii typu JSON.</returns>
         [Route("")]
         // GET api/<controller>
         public async Task<IEnumerable<GetRecipeCategory>> Get()

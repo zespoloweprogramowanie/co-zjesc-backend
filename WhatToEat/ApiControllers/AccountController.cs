@@ -80,10 +80,14 @@ namespace WhatToEat.ApiControllers
 
             return null;
         }
-       
+
+        /// <summary>
+        /// Metoda zwraca nazwę i rolę użytkownika.
+        /// </summary>
+        /// <returns>Zwraca dane typu JSON.</returns>
         [Route("api/user")]
         [HttpGet]
-        [Authorize]
+        [Authorize]       
         public IHttpActionResult GetName()
         {
             //var identity = new ClaimsIdentity(context.Options.AuthenticationType);

@@ -20,12 +20,22 @@ namespace WhatToEat.ApiControllers
             _productsService = new ProductsService(new AppDb());
         }
 
+        /// <summary>
+        /// Metoda zwraca liste wszystich produktów.
+        /// </summary>
+        /// <returns>Zwraca model ProductDTO typu JSON.</returns>
         // GET: api/Products
         public IQueryable<ProductDTO> GetProducts()
         {
             return _productsService.GetProducts();                           
         }
 
+
+        /// <summary>
+        /// Metoda zwraca produkt na podstawie id produktu.
+        /// </summary>
+        /// <param name="id">Oznacza id produktu</param>
+        /// <returns>Zwraca model Product typu JSON.</returns>
         // GET: api/Products/5
         //[ResponseType(typeof(Product))]
         public IHttpActionResult GetProduct(int id)
@@ -33,6 +43,12 @@ namespace WhatToEat.ApiControllers
             return Ok(_productsService.GetProduct(id));
         }
 
+        /// <summary>
+        /// Metoda aktualizująca produkt na podstawie jego id.
+        /// </summary>
+        /// <param name="id">Oznacza id produktu</param>
+        /// <param name="product">Zawiera model Product</param>
+        /// <returns>Zwraca status 400 gdy id jest różne niż id w modelu Product, status 204 jeśli powodzenie lub status 404 w przeciwnych wypadkach.</returns>
         // PUT: api/Products/5
         //[ResponseType(typeof(void))]
         public IHttpActionResult PutProduct(int id, Product product)
@@ -57,6 +73,11 @@ namespace WhatToEat.ApiControllers
             return NotFound();
         }
 
+        /// <summary>
+        /// Metoda dodająca produkt do bazy.
+        /// </summary>
+        /// <param name="product">Zawiera model Product</param>
+        /// <returns>Zwraca status 400 gdy model jest błędny lub id produktu i model Product.</returns>
         // POST: api/Products
         [ResponseType(typeof(Product))]
         public IHttpActionResult PostProduct(Product product)
@@ -71,6 +92,11 @@ namespace WhatToEat.ApiControllers
             return CreatedAtRoute("DefaultApi", new { id = prod.Id }, prod);
         }
 
+        /// <summary>
+        /// Metoda usuwa produkt z bazy na podstawie jego id.
+        /// </summary>
+        /// <param name="id">Oznacza id produktu</param>
+        /// <returns>Zwraca 204 jeśli powodzenie lub 404 jeśli niepowodzenie.</returns>
         // DELETE: api/Products/5
         [ResponseType(typeof(Product))]
         public IHttpActionResult DeleteProduct(int id)
@@ -84,6 +110,10 @@ namespace WhatToEat.ApiControllers
             return NotFound();
         }
 
+        /// <summary>
+        /// Metoda zwraca tagi.
+        /// </summary>
+        /// <returns>Zwraca liste modelu RecipeTag</returns>
         [Route("api/tags")]
         public IHttpActionResult GetTags()
         {
