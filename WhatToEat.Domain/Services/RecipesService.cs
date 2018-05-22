@@ -33,6 +33,8 @@ namespace WhatToEat.Domain.Services
         Task<IEnumerable<Recipe>> GetRecipesByFilters(int? categoryId);
         Task<IEnumerable<Recipe>> GetMyRecipes();
         Task<IEnumerable<Recipe>> GetNewestRecipesAsync(int count = 15);
+        Task<IEnumerable<Recipe>> GetHighestRateRecipes(int count = 15);
+        Task<IEnumerable<Recipe>> GetMostPopularRecipes(int count = 15);
         Task<IEnumerable<Recipe>> GetRecipesByCategoryAsync(int categoryId);
         Task<double> RateRecipeAsync(int id, int rate);
         Task<int> GetRandomRecipeIdAsync();
@@ -452,6 +454,25 @@ namespace WhatToEat.Domain.Services
         {
             var query = _dbset
                 .OrderByDescending(x => x.CreatedDate)
+                .Take(count);
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Recipe>> GetHighestRateRecipes(int count = 15)
+        {
+            var query = _dbset
+                .OrderByDescending(x => x.AverageRate)
+                .Take(count);
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Recipe>> GetMostPopularRecipes(int count = 15)
+        {
+            var query = _dbset
+                .Include(x => x.Rates)
+                .OrderByDescending(x => x.Rates.Count)
                 .Take(count);
 
             return await query.ToListAsync();

@@ -257,9 +257,19 @@ namespace WhatToEat.ApiControllers
                 new List<Carousel>
                 {
                     new Carousel("Najnowsze przepisy", await _recipesService.GetNewestRecipesAsync()),
+                    new Carousel("Najpopularniejsze", await _recipesService.GetMostPopularRecipes()),
+                    new Carousel("Najwyżej oceniane", await _recipesService.GetHighestRateRecipes()),
                     new Carousel("Najlepsze zupy", await _recipesService.GetRecipesByCategoryAsync(3)), // todo: dodać stałe do kategorii
                     new Carousel("Najlepsze desery", await _recipesService.GetRecipesByCategoryAsync(4)) // todo: dodać stałe do kategorii
                 };
+
+            if (UserHelper.IsUserLoggedIn())
+            {
+                var favourites = await _recipesService.GetUserFavouriteRecipesAsync();
+                var enumerable = favourites.ToList();
+                if (enumerable.Any())
+                    carousels.Insert(0, new Carousel("Moje ulubione", enumerable));
+            }
 
             return Ok(carousels);
         }
