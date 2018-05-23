@@ -166,8 +166,12 @@ namespace WhatToEat.ApiControllers
             return Ok(recipe);
         }
 
-        // POST: api/GetRecipesByProducts
-        [HttpPost]
+        /// <summary>
+        /// Metoda zwracająca przepis na podstawie listy id składników.
+        /// </summary>
+        /// <param name="productIds">Oznacza id produktów</param>
+        /// <returns>Zwraca kolekcje przepisów jako model CompactRecipe typu JSON.</returns>
+/        [HttpPost]
         [Route("api/recipes/getRecipesByProducts")]
         [ResponseType(typeof(IEnumerable<CompactRecipe>))]
         //[HttpOptions]
@@ -177,7 +181,12 @@ namespace WhatToEat.ApiControllers
             return Ok(recipes.Select(x => new CompactRecipe(x)));
         }
 
-        // PUT: api/Recipes/5
+        /// <summary>
+        /// Metoda aktualizująca przepis.
+        /// </summary>
+        /// <param name="id">Oznacza id przepisu</param>
+        /// <param name="recipe">Model przepisu zaktualizowanego</param>
+        /// <returns>Zwraca id przepisu gdy sukces, status 400 jeśli model jest zły lub status 400 gdy id przepisu jest złe.</returns>
         [ResponseType(typeof(void))]
         public async Task<IHttpActionResult> PutRecipe(int id, UpdateCommand recipe)
         {
@@ -195,7 +204,11 @@ namespace WhatToEat.ApiControllers
             return Ok(updated.Id);
         }
 
-        // POST: api/Recipes
+        /// <summary>
+        /// Metoda zapisująca nowy przepis do bazy.
+        /// </summary>
+        /// <param name="command">Oznacza model nowo tworzonego przepisu o modelu CreateCommand</param>
+        /// <returns>Zwraca id przepisy gdy sukces lub status 400 jeśli model jest zły.</returns>
         [ResponseType(typeof(int))]
         [HttpPost]
         [Route("api/recipes")]
@@ -210,17 +223,24 @@ namespace WhatToEat.ApiControllers
             return Ok(createdRecipe.Id);
         }
 
-        // DELETE: api/Recipes/5
+        /// <summary>
+        /// Metoda usuwa przepis na podstawie jego id.
+        /// </summary>
+        /// <param name="id">Oznacza id przepisu</param>
+        /// <returns>Zwraca status 200.</returns>
         public async Task<IHttpActionResult> DeleteRecipe(int id)
         {
             await _recipesService.DeleteAsync(id);
             return Ok();
         }
 
+        /// <summary>
+        /// Metoda dodająca zdjęcie dla przepisu do bazy.
+        /// </summary>
+        /// <returns>Zwraca ścieżki i id nowo dodanych zdjęć jako model UploadRecipeImagesResult typu JSON.</returns>
         [HttpPost]
         [Route("api/recipes/uploadRecipeImages")]
         [ResponseType(typeof(IEnumerable<string>))]
-        //[HttpOptions]
         public IHttpActionResult UploadRecipeImages()
         {
             var httpRequest = HttpContext.Current.Request;
@@ -243,6 +263,11 @@ namespace WhatToEat.ApiControllers
             ));
         }
 
+
+        /// <summary>
+        /// Metoda zwracająca przepisy aktualnie zalogowanego użytkownika.
+        /// </summary>
+        /// <returns>Zwraca kolekcje przepisów jako model CompactRecipe o typie JSON.</returns>
         [HttpGet]
         [Authorize]
         [Route("api/user/recipes")]
@@ -253,6 +278,10 @@ namespace WhatToEat.ApiControllers
             return Ok(list.Select(x => new CompactRecipe(x)));
         }
 
+        /// <summary>
+        /// Metoda zwracająca karuzele przepisów.
+        /// </summary>
+        /// <returns>Zwraca karuzele przepisów o modelu Carousel jako lista typu JSON.</returns>
         [HttpGet]
         [Route("api/carousels")]
         [ResponseType(typeof(IEnumerable<Carousel>))]
@@ -270,6 +299,12 @@ namespace WhatToEat.ApiControllers
             return Ok(carousels);
         }
 
+        /// <summary>
+        /// Metoda dodająca ocenę dla przepisu po jego id.
+        /// </summary>
+        /// <param name="id">Oznacza id przepisu</param>
+        /// <param name="rate">Oznacza ocenę dla przepisu od 1 do 5</param>
+        /// <returns>Zwraca średnią ocenę dla przepisu lub status 500 w przypadku wyjątku.</returns>
         [HttpPost]
         [Route("api/recipes/{id}/{rate}")]
         public async Task<IHttpActionResult> RateRecipe(int id, int rate)
@@ -285,6 +320,10 @@ namespace WhatToEat.ApiControllers
             }
         }
 
+        /// <summary>
+        /// Metoda zwracająca losowe id przepisu.
+        /// </summary>
+        /// <returns>Zwraca id przepisu.</returns>
         [HttpGet]
         [Route("api/recipes/random")]
         [ResponseType(typeof(int))]
@@ -301,6 +340,11 @@ namespace WhatToEat.ApiControllers
             }
         }
 
+        /// <summary>
+        /// Metoda importuje przepis do bazy.
+        /// </summary>
+        /// <param name="recipe">Oznacza model przepisu RecipeImport</param>
+        /// <returns>Zwraca komunikat "Import poprawny." lub status 500 w przypadku wyjątku.</returns>
         [HttpPost]
         [Route("api/recipes/import")]
         public async Task<IHttpActionResult> ImportRecipe(RecipeImport recipe)
@@ -317,6 +361,11 @@ namespace WhatToEat.ApiControllers
             return Ok("Import poprawny.");
         }
 
+        /// <summary>
+        /// Metoda dodająca przepis do ulubionych dla zalogowanego użytkownika.
+        /// </summary>
+        /// <param name="id">Oznacza id przepisu</param>
+        /// <returns>Zwraca true jeśli doda przepis do ulubionych, false jeśli przepis jest już w ulubionych lub status 500 w przypadku wyjątku.</returns>
         [HttpPost]
         [Route("api/recipes/favorite/add")]
         public async Task<IHttpActionResult> AddRecipeToFavorite(int id)
@@ -326,7 +375,7 @@ namespace WhatToEat.ApiControllers
                 var result = await _recipesService.AddRecipeToFavorite(id);
                 if (result == 1)
                     return Ok(true);
-                else if(result == 2)
+                else if (result == 2)
                     return Ok(false);
                 else
                     return InternalServerError();
@@ -338,6 +387,11 @@ namespace WhatToEat.ApiControllers
 
         }
 
+        /// <summary>
+        /// Metoda usuwająca przepis z ulubionych.
+        /// </summary>
+        /// <param name="id">Oznacza id przepisu</param>
+        /// <returns>Zwraca true jeśli usunie przepis z ulubionych, false jeśli przepis jest już usunięty lub status 500 w przypadku wyjątku.</returns>
         [HttpPost]
         [Route("api/recipes/favorite/remove")]
         public async Task<IHttpActionResult> RemoveRecipeFromFavorite(int id)
@@ -359,6 +413,10 @@ namespace WhatToEat.ApiControllers
 
         }
 
+        /// <summary>
+        /// Metoda zwracająca ulubione przepisy zalogowanego użytkownika.
+        /// </summary>
+        /// <returns>Zwraca kolekcje ulubionych przepisów jako model CompactRecipe typu JSON.</returns>
         [HttpGet]
         [Route("api/recipes/favorites")]
         [ResponseType(typeof(IEnumerable<CompactRecipe>))]
