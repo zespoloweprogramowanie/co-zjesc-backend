@@ -20,7 +20,11 @@ namespace WhatToEat.ApiControllers
             _db = new AppDb();
         }
 
-        // POST api/Account/Register
+        /// <summary>
+        /// Metoda tworząca nowe konto użytkownika anonimowego.
+        /// </summary>
+        /// <param name="userModel">Zawiera model UserModel.</param>
+        /// <returns>Zwraca status 200 w przypadku sukcesu lub status 500 w przypadku niepowodzenia.</returns>
         [AllowAnonymous]
         [HttpPost]
         public async Task<IHttpActionResult> Register(UserModel userModel)

@@ -41,5 +41,6 @@ namespace WhatToEat.ApiControllers
                 name = x.Name
             });
         }
+
     }
 }

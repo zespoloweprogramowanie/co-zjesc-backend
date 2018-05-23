@@ -73,7 +73,12 @@ namespace WhatToEat.ApiControllers
 
 
 
-        // GET: api/Recipes
+        /// <summary>
+        /// Metoda zwracająca przepis na podstawie categorii, szukanego tesktu lub obu parametrów.
+        /// </summary>
+        /// <param name="category">Oznacza nr kategorii typu int</param>
+        /// <param name="search">Oznacza dowolny szukany tekst dla tytułu</param>
+        /// <returns>Zwraca kolekcje przepisów na podstawie modelu CompactRecipe i typu JSON.</returns>
         [ResponseType(typeof(IEnumerable<CompactRecipe>))]
         [AllowAnonymous]
         [Route("api/recipes")]
@@ -95,17 +100,14 @@ namespace WhatToEat.ApiControllers
                 recipes = await _recipesService.ListAsync();
             }
 
-            //var output = recipes.Select(x => new CompactRecipe()
-            //{
-            //    Id = x.Id,
-            //    Title = x.Name,
-            //    Image = x.Images.Count > 0 ? Url.Content(x.Images.FirstOrDefault()?.Path) : ""
-            //});
-
             var output = recipes.Select(x => new CompactRecipe(x));
             return Ok(output);
         }
 
+        /// <summary>
+        /// Metoda zwracająca liste przepisów do akceptacji.
+        /// </summary>
+        /// <returns>Zwaraca przepisy do akceptacji o modelu Recipe typu JSON.</returns>
         [HttpGet]
         [Route("api/recipes/getRecipesToAccept")]
         [ResponseType(typeof(Recipe))]
@@ -117,7 +119,11 @@ namespace WhatToEat.ApiControllers
         }
 
 
-        // GET: api/Recipes/5
+        /// <summary>
+        /// Metoda zwracająca przepis na podstawie jego id.
+        /// </summary>
+        /// <param name="id">Oznacza id przepisu</param>
+        /// <returns>Zwraca przepis na podtawie moedelu Recipe typu JSON</returns>
         [ResponseType(typeof(Recipe))]
         public async Task<IHttpActionResult> GetRecipe(int id)
         {
