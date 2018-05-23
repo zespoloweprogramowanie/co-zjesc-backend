@@ -9,13 +9,26 @@ using WhatToEat.Domain.Services;
 
 namespace WhatToEat.Domain.Providers
 {
+    /// <summary>
+    /// Klasa obsługująca autoryzacje użytkownika
+    /// </summary>
     public class SimpleAuthorizationServerProvider : OAuthAuthorizationServerProvider
     {
+        /// <summary>
+        /// Sprawdza czy użytkownik ma poprawny token
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public override async Task ValidateClientAuthentication(OAuthValidateClientAuthenticationContext context)
         {
             context.Validated();
         }
 
+        /// <summary>
+        /// Sprawdza czy użytkownik istnieje w aplikacji na podstawie contextu
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public override async Task GrantResourceOwnerCredentials(OAuthGrantResourceOwnerCredentialsContext context)
         {
 

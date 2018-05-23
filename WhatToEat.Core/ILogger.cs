@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace WhatToEat.Core
 {
+    /// <summary>
+    /// Interfejs oznaczający mechanizm logujący
+    /// </summary>
     public interface ILogger
     {
         void Info(string message);

@@ -35,7 +35,7 @@ namespace WhatToEat.Domain.Services
         Task<IEnumerable<Recipe>> GetNewestRecipesAsync(int count = 15);
         Task<IEnumerable<Recipe>> GetHighestRateRecipes(int count = 15);
         Task<IEnumerable<Recipe>> GetMostPopularRecipes(int count = 15);
-        Task<IEnumerable<Recipe>> GetRecipesByCategoryAsync(int categoryId);
+        Task<IEnumerable<Recipe>> GetRecipesByCategoryAsync(int categoryId, int count = 15);
         Task<double> RateRecipeAsync(int id, int rate);
         Task<int> GetRandomRecipeIdAsync();
         Task<Recipe> ImportRecipeAsync(RecipeImport recipe);
@@ -44,6 +44,9 @@ namespace WhatToEat.Domain.Services
         Task<IEnumerable<Recipe>> GetUserFavouriteRecipesAsync();
     }
 
+    /// <summary>
+    /// Serwis odpowiedzialny za obsługę logiki biznesowej dla przepisów
+    /// </summary>
     public class RecipesService : EntityService<Recipe>, IRecipesService
     {
         private ILogger _logger;
@@ -65,6 +68,11 @@ namespace WhatToEat.Domain.Services
             _unitsService = new UnitsService(new AppDb());
         }
 
+        /// <summary>
+        /// Pobiera przepisy na podstawie kategorii
+        /// </summary>
+        /// <param name="categoryId">id kategorii</param>
+        /// <returns>Lista przepisów domenowych</returns>
         public async Task<IEnumerable<Recipe>> GetRecipesByFilters(int? categoryId)
         {
             var list = await _dbset
@@ -72,7 +80,12 @@ namespace WhatToEat.Domain.Services
                 .ToListAsync();
             return list;
         }
-
+        
+        /// <summary>
+        /// Uploaduje zdjęcia dodawane do przepisu jako tymczasowe (do pokazania na formatce)
+        /// </summary>
+        /// <param name="files">zdjęcia binarne</param>
+        /// <returns>Lista adresów do zdjęć</returns>
         public List<string> UploadRecipeImages(IEnumerable<HttpPostedFile> files)
         {
             string directoryGuid = Guid.NewGuid().ToString();
@@ -90,15 +103,18 @@ namespace WhatToEat.Domain.Services
                     $"{directoryRelativePath}/{newFileName}";
                 string fileAbsolutePath = ServerHelper.GetAbsolutePath(fileRelativePath);
 
-
                 file.SaveAs(fileAbsolutePath);
-
                 filePaths.Add(fileRelativePath);
             }
 
             return filePaths;
         }
 
+        /// <summary>
+        /// Pobiera przepis do podglądu
+        /// </summary>
+        /// <param name="recipeId"></param>
+        /// <returns></returns>
         public async Task<Recipe> GetRecipeForPreviewAsync(int recipeId)
         {
             return await _dbset
@@ -112,6 +128,11 @@ namespace WhatToEat.Domain.Services
                 .FirstOrDefaultAsync(x => x.Id == recipeId);
         }
 
+        /// <summary>
+        /// Pobiera przepisy na podstawie wybranych produktów
+        /// </summary>
+        /// <param name="productIds">Id produktów</param>
+        /// <returns>Lista przepisów</returns>
         public async Task<IEnumerable<Recipe>> GetRecipesByProductsAsync(List<int> productIds)
         {
             var recipes = await _dbset
@@ -141,6 +162,11 @@ namespace WhatToEat.Domain.Services
             return recipes;
         }
 
+        /// <summary>
+        /// Tworzy przepis
+        /// </summary>
+        /// <param name="command">Obiekt dodawania przepisu</param>
+        /// <returns>Dodany przepis</returns>
         public async Task<Recipe> CreateRecipeAsync(CreateCommand command)
         {
             //var recipeProducts = command.products.Select(x => new RecipeProduct()
@@ -206,6 +232,11 @@ namespace WhatToEat.Domain.Services
             return await CreateAsync(recipe);
         }
 
+        /// <summary>
+        /// Aktualizuje przepis
+        /// </summary>
+        /// <param name="command">Obiekt edycji przepisu</param>
+        /// <returns>Zakutalizowany przepis</returns>
         public async Task<Recipe> UpdateRecipeAsync(UpdateCommand command)
         {
             var current = await _dbset
@@ -415,6 +446,11 @@ namespace WhatToEat.Domain.Services
             //return null;
         }
 
+        /// <summary>
+        /// Pobiera przepisy na podstawie nazwy
+        /// </summary>
+        /// <param name="title">Nazwa</param>
+        /// <returns>Lista przepisów</returns>
         public async Task<IEnumerable<Recipe>> GetRecipesForTitle(string title)
         {
             var list = await _dbset
@@ -428,13 +464,19 @@ namespace WhatToEat.Domain.Services
             return list;
         }
 
+        /// <summary>
+        /// Zwraca przepisy do akceptacji - Not implemented
+        /// </summary>
+        /// <returns></returns>
         public async Task<IEnumerable<Recipe>> GetRecipesToAccept()
         {
-            var list = await _db.Recipes.Join(_db.RecipeComment, r => r.Id, c => c.RecipeId, (r, c) => new { Recipe = r, Comment = c }).Where(x => x.Comment.Accepted == false).Select(x => x.Recipe).ToListAsync();
-
-            return list;
+            throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Pobiera moje przepisy (dodane przeze mnie)
+        /// </summary>
+        /// <returns>Lista przepisów</returns>
         public async Task<IEnumerable<Recipe>> GetMyRecipes()
         {
             string userId = UserHelper.GetCurrentUserId();//ClaimsPrincipal.Current.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
@@ -450,43 +492,79 @@ namespace WhatToEat.Domain.Services
             return list;
         }
 
+        /// <summary>
+        /// Pobiera najnowsze przepisy
+        /// </summary>
+        /// <param name="count">Ilość elementów</param>
+        /// <returns>Lista przepisów</returns>
         public async Task<IEnumerable<Recipe>> GetNewestRecipesAsync(int count = 15)
         {
             var query = _dbset
+                .Include(x => x.Images)
+                .Where(x => x.Images.Any())
                 .OrderByDescending(x => x.CreatedDate)
                 .Take(count);
 
             return await query.ToListAsync();
         }
 
+        /// <summary>
+        /// Pobiera najwyżej oceniane przepisy
+        /// </summary>
+        /// <param name="count">Ilość elementów</param>
+        /// <returns>Lista przepisów</returns>
         public async Task<IEnumerable<Recipe>> GetHighestRateRecipes(int count = 15)
         {
             var query = _dbset
+                .Include(x => x.Images)
+                .Where(x => x.Images.Any())
                 .OrderByDescending(x => x.AverageRate)
                 .Take(count);
 
             return await query.ToListAsync();
         }
 
+        /// <summary>
+        /// Pobiera najbardziej popularne przepisy (najczęściej oceniane)
+        /// </summary>
+        /// <param name="count">Ilość elementów</param>
+        /// <returns>Lista przepisów</returns>
         public async Task<IEnumerable<Recipe>> GetMostPopularRecipes(int count = 15)
         {
             var query = _dbset
                 .Include(x => x.Rates)
+                .Include(x => x.Images)
+                .Where(x => x.Images.Any())
                 .OrderByDescending(x => x.Rates.Count)
                 .Take(count);
 
             return await query.ToListAsync();
         }
 
-        public async Task<IEnumerable<Recipe>> GetRecipesByCategoryAsync(int categoryId)
-        {
-            var query = from r in _dbset
-                        where r.CategoryId == categoryId
-                        select r;
+        /// <summary>
+        /// Pobiera przepisy na podstawie kategorii
+        /// </summary>
+        /// <param name="categoryId">Id kategorii</param>
+        /// <param name="count">Ilość elementów</param>
+        /// <returns>Lista przepisów</returns>
+        public async Task<IEnumerable<Recipe>> GetRecipesByCategoryAsync(int categoryId, int count = 15)
+        {   
+            var query = _dbset
+                .Include(x => x.Rates)
+                .Include(x => x.Images)
+                .Where(x => x.Images.Any() && x.CategoryId == categoryId)
+                .OrderByDescending(x => x.Rates.Count)
+                .Take(count);
 
             return await query.ToListAsync();
         }
 
+        /// <summary>
+        /// Metoda do oceniania przepisu
+        /// </summary>
+        /// <param name="id">Id przepisu</param>
+        /// <param name="rate">Ocena</param>
+        /// <returns>Nowa średnia ocen przepisu</returns>
         public async Task<double> RateRecipeAsync(int id, int rate)
         {
             var recipe = await _dbset
@@ -517,6 +595,10 @@ namespace WhatToEat.Domain.Services
             return recipe.AverageRate;
         }
 
+        /// <summary>
+        /// Pobiera id losowego przepisu
+        /// </summary>
+        /// <returns>Id losowego przepisu</returns>
         public async Task<int> GetRandomRecipeIdAsync()
         {
             var ids = await _dbset.Select(x => x.Id).ToListAsync();
@@ -529,6 +611,11 @@ namespace WhatToEat.Domain.Services
             return randomId;
         }
 
+        /// <summary>
+        /// Importuje przepisy na podstawie modelu do importu (crawler)
+        /// </summary>
+        /// <param name="command">Model importu</param>
+        /// <returns>Przepis domenowy</returns>
         public async Task<Recipe> ImportRecipeAsync(RecipeImport command)
         {
             string userId = UserHelper.GetCurrentUserId();
@@ -593,6 +680,11 @@ namespace WhatToEat.Domain.Services
             return await CreateAsync(recipe);
         }
 
+        /// <summary>
+        /// Przelicza obecną średnią przepisu na podstawie ocen
+        /// </summary>
+        /// <param name="recipe">Przepis</param>
+        /// <returns>Średnia ocen</returns>
         private static double CalculateAverageRate(Recipe recipe)
         {
             double avgRate = recipe.Rates.Aggregate<RecipeRate, double>(0, (current, rate) => current + rate.Rate);
@@ -600,6 +692,11 @@ namespace WhatToEat.Domain.Services
             return avgRate;
         }
 
+        /// <summary>
+        /// Dodaje przepis do ulubionych aktualnie zalogowanego użytkownika
+        /// </summary>
+        /// <param name="id">Id przepisu</param>
+        /// <returns>Kod odpowiedzi</returns>
         public async Task<int> AddRecipeToFavorite(int id)
         {
             string userId = UserHelper.GetCurrentUserId();
@@ -626,6 +723,11 @@ namespace WhatToEat.Domain.Services
             return 3;
         }
 
+        /// <summary>
+        /// Usuwa przepis z ulubionych
+        /// </summary>
+        /// <param name="id">Id przepisu</param>
+        /// <returns>Kod odpowiedzi</returns>
         public async Task<int> RemoveRecipeFromFavorite(int id)
         {
             string userId = UserHelper.GetCurrentUserId();
@@ -646,6 +748,10 @@ namespace WhatToEat.Domain.Services
             return 3;
         }
 
+        /// <summary>
+        /// Pobiera listę ulubionych przepisów użytkownika
+        /// </summary>
+        /// <returns>Lista przepisów</returns>
         public async Task<IEnumerable<Recipe>> GetUserFavouriteRecipesAsync()
         {
             string userId = UserHelper.GetCurrentUserId();

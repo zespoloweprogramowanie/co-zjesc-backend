@@ -22,6 +22,9 @@ namespace WhatToEat.Domain.Services
         Unit GetOrCreateUnitByName(string unit);
     }
 
+    /// <summary>
+    /// Serwis odpowiedzialny za obsługę logiki biznesowej dla jednostek
+    /// </summary>
     public class UnitsService : EntityService<Unit>, IUnitsService
     {
         private ILogger _logger;
@@ -34,12 +37,21 @@ namespace WhatToEat.Domain.Services
             _logger = new DbLogger(new AppDb());
         }
 
+        /// <summary>
+        /// Pobiera jednostki
+        /// </summary>
+        /// <returns>Lista jednostek</returns>
         public List<Unit> GetUnits()
         {
             var units = _db.Units.ToList();
             return units;
         }
 
+        /// <summary>
+        /// Tworzy lub pobiera jednostkę na podstawie nazwy asynchronicznie
+        /// </summary>
+        /// <param name="name">Nazwa jednostki</param>
+        /// <returns>Jednostka domenowa</returns>
         public async Task<Unit> GetOrCreateUnitByNameAsync(string name)
         {
 
@@ -57,6 +69,12 @@ namespace WhatToEat.Domain.Services
             return unit;
         }
 
+
+        /// <summary>
+        /// Tworzy lub pobiera jednostkę na podstawie nazwy
+        /// </summary>
+        /// <param name="name">Nazwa jednostki</param>
+        /// <returns>Jednostka domenowa</returns>
         public Unit GetOrCreateUnitByName(string name)
         {
 

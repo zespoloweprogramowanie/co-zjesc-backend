@@ -33,6 +33,9 @@ namespace WhatToEat.Domain.Services
         Task<ICollection<RecipeProduct>> ImportProductsAsync(List<RecipeImport.Product> commandProducts);
     }
 
+    /// <summary>
+    /// Serwis odpowiedzialny za obsługę logiki biznesowej dla produktów
+    /// </summary>
     public class ProductsService : EntityService<Product>, IProductsService
     {
         private ILogger _logger;
@@ -47,6 +50,12 @@ namespace WhatToEat.Domain.Services
             _unitsService = new UnitsService(new AppDb());
         }
 
+        /// <summary>
+        /// Dodaje produkt do bazy danych razem ze zdjęciem
+        /// </summary>
+        /// <param name="product">Produkt</param>
+        /// <param name="image">Zdjęcie binarne</param>
+        /// <returns></returns>
         public async Task<Product> CreateProductAsync(Product product, HttpPostedFileBase image)
         {
             var createdProduct = await CreateAsync(product);
@@ -67,6 +76,12 @@ namespace WhatToEat.Domain.Services
             return createdProduct;
         }
 
+        /// <summary>
+        /// Aktualizuje produkt w bazie danych razem ze zdjęciem
+        /// </summary>
+        /// <param name="product">Produkt</param>
+        /// <param name="image">Zdjęcie binarne</param>
+        /// <returns></returns>
         public async Task<Product> EditProductAsync(Product product, HttpPostedFileBase image)
         {
             var current = await _dbset.FirstOrDefaultAsync(x => x.Id == product.Id);
@@ -81,6 +96,12 @@ namespace WhatToEat.Domain.Services
             return updatedProduct;
         }
 
+        /// <summary>
+        /// Aktualizuje zdjęcie produktu
+        /// </summary>
+        /// <param name="image">Zdjęcie</param>
+        /// <param name="current">Produkt</param>
+        /// <returns></returns>
         private Product OverrideCurrentProductImage(HttpPostedFileBase image, Product current)
         {
             var relativeImagePath =
@@ -92,6 +113,10 @@ namespace WhatToEat.Domain.Services
             return current;
         }
 
+        /// <summary>
+        /// Zapytanie pobierające informacje o produktach
+        /// </summary>
+        /// <returns></returns>
         public IQueryable<ProductDTO> GetProducts()
         {
             var products = from p in _db.Products
@@ -104,6 +129,11 @@ namespace WhatToEat.Domain.Services
             return products;
         }
 
+        /// <summary>
+        /// Pobiera produkt na podstawie id
+        /// </summary>
+        /// <param name="id">id produktu</param>
+        /// <returns></returns>
         public Product GetProduct(int id)
         {
             Product product = _db.Products.Find(id);
@@ -115,6 +145,12 @@ namespace WhatToEat.Domain.Services
             return product;
         }
 
+        /// <summary>
+        /// Aktualizuje produkt na podstawie id
+        /// </summary>
+        /// <param name="product"></param>
+        /// <param name="image">Zdjęcie binarne</param>
+        /// <returns></returns>
         public int PutProduct(int id, Product product)
         {
             var result = 0;
@@ -141,11 +177,21 @@ namespace WhatToEat.Domain.Services
             return result;
         }
 
+        /// <summary>
+        /// Sprawdza czy produkt istnieje
+        /// </summary>
+        /// <param name="id">id produktu</param>
+        /// <returns>Czy produkt istnieje</returns>
         private bool ProductExists(int id)
         {
             return _db.Products.Count(e => e.Id == id) > 0;
         }
 
+        /// <summary>
+        /// Dodaje produkt
+        /// </summary>
+        /// <param name="product"></param>
+        /// <returns></returns>
         public Product PostProduct(Product product)
         {
             try
@@ -161,6 +207,11 @@ namespace WhatToEat.Domain.Services
             return product;
         }
 
+        /// <summary>
+        /// Usuwa produkt
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public int DeleteProduct(int id)
         {
             var result = 0;
@@ -178,18 +229,31 @@ namespace WhatToEat.Domain.Services
             return result;
         }
 
+        /// <summary>
+        /// Pobiera jednostki
+        /// </summary>
+        /// <returns></returns>
         public List<Unit> GetUnits()
         {
             var units = _db.Units.ToList();
             return units;
         }
 
+        /// <summary>
+        /// Pobiera tagi
+        /// </summary>
+        /// <returns></returns>
         public List<RecipeTag> GetTags()
         {
             var tags = _db.RecipeTags.ToList();
             return tags;
         }
 
+        /// <summary>
+        /// Pobiera produkt o danej nazwie, a jeśli nie istnieje to go tworzy
+        /// </summary>
+        /// <param name="name">Nazwa produktu</param>
+        /// <returns>Pobrany / utworzony produkt</returns>
         public async Task<Product> GetOrCreateProductByNameAsync(string name)
         {
             var product = await _dbset
@@ -207,7 +271,11 @@ namespace WhatToEat.Domain.Services
         }
         
 
-
+        /// <summary>
+        /// Metoda importująca produkt
+        /// </summary>
+        /// <param name="importProducts">Obiekty trzymające informacje o importowanych produktach</param>
+        /// <returns>Produkty domenowe</returns>
         public async Task<ICollection<RecipeProduct>> ImportProductsAsync(List<RecipeImport.Product> importProducts)
         {
             List<RecipeProduct> importedProducts = new List<RecipeProduct>();

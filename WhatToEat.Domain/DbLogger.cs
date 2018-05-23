@@ -9,6 +9,9 @@ using WhatToEat.Domain.Services;
 
 namespace WhatToEat.Domain
 {
+    /// <summary>
+    /// Klasa odpowiedzialna za logowanie do bazy danych
+    /// </summary>
     public class DbLogger : ILogger
     {
         private readonly ILogService _logService;
@@ -18,6 +21,10 @@ namespace WhatToEat.Domain
             _logService = new LogsService(context);
         }
 
+        /// <summary>
+        /// Loguje informację do bazy danych
+        /// </summary>
+        /// <param name="message">Informacja</param>
         public void Info(string message)
         {
             var log = new Log()
@@ -27,6 +34,10 @@ namespace WhatToEat.Domain
             _logService.Create(log);
         }
 
+        /// <summary>
+        /// Loguje błąd do bazy danych
+        /// </summary>
+        /// <param name="error">Błąd</param>
         public void Error(string error)
         {
             var log = new Log()
@@ -36,6 +47,11 @@ namespace WhatToEat.Domain
             _logService.Create(log);
         }
 
+        /// <summary>
+        /// Loguje błąd i wyjątek do bazy danych
+        /// </summary>
+        /// <param name="error">Błąd</param>
+        /// <param name="exception">Wyjątek</param>
         public void Error(string error, Exception exception)
         {
             var log = new Log()

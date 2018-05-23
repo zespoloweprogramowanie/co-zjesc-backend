@@ -12,6 +12,9 @@ namespace WhatToEat.Domain.Services
 
     }
 
+    /// <summary>
+    /// Serwis odopowiedzialny za zapis elementów logu do bazy danych
+    /// </summary>
     public class LogsService : EntityService<Log>, ILogService
     {
         private new IContext _db;

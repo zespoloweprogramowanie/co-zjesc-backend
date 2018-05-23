@@ -21,6 +21,9 @@ namespace WhatToEat.Domain.Services
         Task<RecipeCategory> ImportCategoryAsync(string commandCategory);
     }
 
+    /// <summary>
+    /// Serwis odpowiedzialny za obsługę logiki biznesowej dla kategorii
+    /// </summary>
     public class RecipeCategoriesService : EntityService<RecipeCategory>, IRecipeCategoriesService
     {
         private ILogger _logger;
@@ -33,12 +36,21 @@ namespace WhatToEat.Domain.Services
             _logger = new DbLogger(new AppDb());
         }
 
+        /// <summary>
+        /// Importuje kategorie
+        /// </summary>
+        /// <param name="name">nazwa kategorii</param>
+        /// <returns>Kategoria domenowa</returns>
         public async Task<RecipeCategory> ImportCategoryAsync(string name)
         {
             return await GetOrCreateCategoryByNameAsync(name);
         }
 
-
+        /// <summary>
+        /// Pobiera lub tworzy kategorie na podstawie nazwy
+        /// </summary>
+        /// <param name="name">nazwa kategorii</param>
+        /// <returns>Kategoria domenowa</returns>
         public async Task<RecipeCategory> GetOrCreateCategoryByNameAsync(string name)
         {
             var category = await _dbset

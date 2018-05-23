@@ -9,6 +9,11 @@ namespace WhatToEat.Core.Extensions
 {
     public static class UrlExtensions
     {
+        /// <summary>
+        /// Zwraca ścieżkę absolutną na podstawie HttpContextu i ścieżki relatwynej
+        /// </summary>
+        /// <param name="relativeUrl">Ścieżka relatywna</param>
+        /// <returns>Ścieżka absolutna</returns>
         public static string ToAbsoluteUrl(this string relativeUrl)
         {
             if (string.IsNullOrEmpty(relativeUrl))

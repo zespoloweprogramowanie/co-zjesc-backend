@@ -22,6 +22,9 @@ namespace WhatToEat.Domain.Services
         Task<ICollection<RecipeTag>> ImportTagsAsync(List<string> commandTags);
     }
 
+    /// <summary>
+    /// Serwis odpowiedzialny za obsługę logiki biznesowej dla tagów
+    /// </summary>
     public class TagsService : EntityService<RecipeTag>, ITagsService
     {
         private ILogger _logger;
@@ -34,12 +37,21 @@ namespace WhatToEat.Domain.Services
             _logger = new DbLogger(new AppDb());
         }
 
+        /// <summary>
+        /// Pobiera listę tagów
+        /// </summary>
+        /// <returns>Lista tagów</returns>
         public List<RecipeTag> GetTags()
         {
             var tags = _db.RecipeTags.ToList();
             return tags;
         }
 
+        /// <summary>
+        /// Tworzy lub pobiera tag na podstawie nazwy
+        /// </summary>
+        /// <param name="name">Nazwa tagu</param>
+        /// <returns>Tag domenowy</returns>
         public async Task<RecipeTag> GetOrCreateTagAsync(string name)
         {
             var tag = await _dbset
@@ -56,6 +68,11 @@ namespace WhatToEat.Domain.Services
             return tag;
         }
 
+        /// <summary>
+        /// Importuje tag
+        /// </summary>
+        /// <param name="importTags">Lista tagów</param>
+        /// <returns>Lista tagów domenowych</returns>
         public async Task<ICollection<RecipeTag>> ImportTagsAsync(List<string> importTags)
         {
             List<RecipeTag> importedTags = new List<RecipeTag>();

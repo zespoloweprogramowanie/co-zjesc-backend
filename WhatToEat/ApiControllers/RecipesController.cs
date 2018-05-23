@@ -171,7 +171,7 @@ namespace WhatToEat.ApiControllers
         /// </summary>
         /// <param name="productIds">Oznacza id produktów</param>
         /// <returns>Zwraca kolekcje przepisów jako model CompactRecipe typu JSON.</returns>
-/        [HttpPost]
+        [HttpPost]
         [Route("api/recipes/getRecipesByProducts")]
         [ResponseType(typeof(IEnumerable<CompactRecipe>))]
         //[HttpOptions]

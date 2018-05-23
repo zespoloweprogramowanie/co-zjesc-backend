@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace WhatToEat.Domain.Commands.Recipe
 {
-
+    /// <summary>
+    /// Obiekt używany przy dodawaniu przepisu
+    /// </summary>
     public class CreateCommand
     {
         public string Title { get; set; }
@@ -29,6 +31,9 @@ namespace WhatToEat.Domain.Commands.Recipe
 
     }
 
+    /// <summary>
+    /// Obiekt używany przy edycji przepisu
+    /// </summary>
     public class UpdateCommand
     {
         public int Id { get; set; }

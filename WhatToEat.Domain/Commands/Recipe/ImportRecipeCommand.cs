@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace WhatToEat.Domain.Commands.Recipe
 {
+    /// <summary>
+    /// Obiekt używany przy importowaniu przepisu
+    /// </summary>
     class ImportRecipeCommand
     {
         public string Title { get; set; }
@@ -20,6 +23,9 @@ namespace WhatToEat.Domain.Commands.Recipe
 
     }
 
+    /// <summary>
+    /// Obiekt używany przy importowaniu produktu na przepisie
+    /// </summary>
     public class Product
     {
         public string Name { get; set; }

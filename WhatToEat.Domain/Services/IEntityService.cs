@@ -4,6 +4,10 @@ using System.Threading.Tasks;
 
 namespace WhatToEat.Domain.Services
 {
+    /// <summary>
+    /// Obsługuje wszystkie serwisy obiektów domenowych
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IEntityService<T> : IService, IDisposable
         //where T: Base
     {

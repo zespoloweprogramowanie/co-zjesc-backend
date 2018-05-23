@@ -8,6 +8,9 @@ using WhatToEat.Domain.Models;
 
 namespace WhatToEat.Domain.Exceptions
 {
+    /// <summary>
+    /// Klasa trzymająca informacji o wyjątku zwracanym przez warstwę serwisową
+    /// </summary>
     class ServiceException : Exception
     {
         private ILogger _logger;
